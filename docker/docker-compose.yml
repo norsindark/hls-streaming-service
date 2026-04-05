@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    container_name: hls-mongodb
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  redis:
+    container_name: hls-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  rabbitmq:
+    container_name: hls-rabbitmq
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  mongo-express:
+    container_name: hls-mongo-express
+    image: mongo-express:latest
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://hls-mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: norsindark
+      ME_CONFIG_BASICAUTH_PASSWORD: "05022001"
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:
+  redis_data:
+  rabbitmq_data:

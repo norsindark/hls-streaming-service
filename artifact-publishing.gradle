@@ -1,0 +1,23 @@
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact bootJar
+
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHub"
+            url = uri("${mavenRepositoryUrl}")
+
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
