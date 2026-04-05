@@ -46,6 +46,10 @@ desktop.ini
 ### Local Configuration ###
 .env
 *.local
+application.properties
+application.yml
+application-local.properties
+application-local.yml
 
 ### Docker ###
 docker/data/

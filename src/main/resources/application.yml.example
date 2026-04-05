@@ -1,0 +1,37 @@
+server:
+  servlet.context-path: /hls
+  port: 8080
+
+management:
+  server:
+    port: 8888
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    group:
+      readiness:
+        include: readinessState, mongo, redis, rabbit
+
+spring:
+  application:
+    name: HLS Streaming Service
+  jackson:
+    default-property-inclusion: non_null
+    serialization.write_dates_as_timestamps: false
+
+logging:
+  level:
+    ROOT: INFO
+    com.hls.streaming: INFO
