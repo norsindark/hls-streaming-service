@@ -1,0 +1,11 @@
+spotless {
+    java {
+        removeUnusedImports()
+        eclipse().configFile("$rootDir/eclipse-java-google-style.xml")
+    }
+
+    groovyGradle {
+        target '*.gradle'
+        greclipse().configFile("$rootDir/eclipse-java-google-style.xml")
+    }
+}

@@ -44,17 +44,16 @@ public class HlsApplication {
         String appName = env.getProperty("spring.application.name", "application");
 
         log.info("""
-            ----------------------------------------------------------
-            Application '{}' is running!
-            Local:      {}://localhost:{}{}
-            External:   {}://{}:{}{}
-            Profile(s): {}
-            ----------------------------------------------------------
-            """,
+                ----------------------------------------------------------
+                Application '{}' is running!
+                Local:      {}://localhost:{}{}
+                External:   {}://{}:{}{}
+                Profile(s): {}
+                ----------------------------------------------------------
+                """,
                 appName,
                 protocol, serverPort, contextPath,
                 protocol, hostAddress, serverPort, contextPath,
-                Arrays.toString(env.getActiveProfiles())
-        );
+                Arrays.toString(env.getActiveProfiles()));
     }
 }

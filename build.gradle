@@ -1,8 +1,13 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version "${springBootVersion}"
+    id "com.diffplug.spotless" version "$spotlessVersion"
     id 'io.spring.dependency-management' version "${springDependencyManagementPlugin}"
 }
+
+apply plugin: 'jacoco'
+apply plugin: 'com.diffplug.spotless'
+apply from: "$rootDir/spotless.gradle"
 
 group = project.findProperty("group")
 
@@ -42,16 +47,22 @@ dependencies {
     // Spring test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // documentation
+    //    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+    // logging
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
     // Mockito
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
     // Testcontainers BOM
-    testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:mongodb'
-    testImplementation 'org.testcontainers:rabbitmq'
-    testImplementation 'org.testcontainers:redis'
+    //    testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
+    //    testImplementation 'org.testcontainers:junit-jupiter'
+    //    testImplementation 'org.testcontainers:mongodb'
+    //    testImplementation 'org.testcontainers:rabbitmq'
+    //    testImplementation 'org.testcontainers:redis'
 
     testImplementation 'org.awaitility:awaitility:4.2.0'
 }
