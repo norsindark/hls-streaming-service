@@ -57,3 +57,9 @@ docker/data/
 ### Logs ###
 *.log
 logs/
+
+### Other ###
+ARCHITECTURE.md
+CONTRIBUTING.md
+DOCUMENTATION_INDEX.md
+README.md

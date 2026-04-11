@@ -30,6 +30,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    implementation "com.auth0:java-jwt:${javaJwtVersion}"
+
+    // Apache Commons
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    implementation "org.apache.commons:commons-collections4:${commonsCollections4Version}"
+    implementation "org.apache.commons:commons-text:${commonsTextVersion}"
+
     // retry
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -52,6 +59,9 @@ dependencies {
 
     // logging
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    // jackson
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 
     // Mockito
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
