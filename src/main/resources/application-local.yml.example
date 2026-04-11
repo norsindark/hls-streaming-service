@@ -17,6 +17,61 @@ spring:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+io:
+  hls:
+    websocket:
+      endpoints:
+        - /ws/stream
+        - /ws/chat
+    api-security:
+      enabled: true
+      authorization-rules:
+        authorize-all: true
+        url-prefix: /hls/api
+        default-rule:
+          token: ACCESS
+          roles: ADMIN,USER
+          paths:
+            - /v1/**
+        skipped-authorization:
+          system-apis:
+            - /health
+            - /info
+            - /metrics
+          public-apis:
+            - /auth/login
+            - /auth/register
+            - /public/**
+        rules:
+          - token: ACCESS
+            roles: ADMIN
+            paths:
+              - /v1/admin/**
+          - token: ACCESS
+            roles: USER
+            paths:
+              - /v1/stream/**
+              - /v1/profile/**
+          - token: REFRESH
+            roles: USER,ADMIN
+            paths:
+              - /v1/auth/refresh
+      token-rate-limiting:
+        enabled: true
+        rules:
+          - path: /api/users/token/refresh
+            number-of-requests: 1
+          - path: /api/agencies/token/refresh
+            number-of-requests: 1
+    token:
+      issuer: hls-streaming-service
+      tokenKeypairId: default-keypair
+      tokenConfig:
+        - tokenType: ACCESS
+          livedTime: 15m
+        - tokenType: REFRESH
+          livedTime: 7d
+
 logging:
   level:
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
