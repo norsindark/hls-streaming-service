@@ -2,8 +2,8 @@ package com.hls.streaming.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hls.streaming.config.error.ErrorCodeConfig;
-import com.hls.streaming.security.component.TokenClaimExtractor;
 import com.hls.streaming.config.properties.AuthorizationRuleConfigProperties;
+import com.hls.streaming.security.component.TokenClaimExtractor;
 import com.hls.streaming.security.entrypoint.RestAccessDeniedHandler;
 import com.hls.streaming.security.entrypoint.RestAuthenticationEntryPoint;
 import com.hls.streaming.security.jwt.JwtAuthenticationFilter;
@@ -19,7 +19,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Slf4j
 @Configuration
@@ -34,14 +33,13 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final TokenClaimExtractor tokenClaimExtractor;
     private final JwtAuthenticationVerifier authenticationVerifier;
-    private final HandlerExceptionResolver exceptionResolver;
     private final ErrorCodeConfig errorCodeConfig;
 
     @Bean
     public org.springframework.security.web.SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         if (BooleanUtils.isTrue(globalApiSecurityEnabled)) {
-            log.info("Spring Global Security has been enabled.");
+            log.info("Spring Global Security enabled");
             http.csrf(AbstractHttpConfigurer::disable)
                     .sessionManagement(session ->
                             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,19 +61,17 @@ public class SecurityConfig {
             // JWT Authentication Filter
             http.addFilterBefore(
                     new JwtAuthenticationFilter(
-                            exceptionResolver,
                             authorizationRuleConfig,
                             tokenClaimExtractor,
                             authenticationVerifier,
                             errorCodeConfig
                     ), UsernamePasswordAuthenticationFilter.class);
         } else {
-            log.warn("Security disabled - NOT for production");
+            log.warn("Security disabled");
             http.csrf(AbstractHttpConfigurer::disable)
-                    .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .authorizeHttpRequests(auth -> auth
-                            .anyRequest().permitAll());
+                    .sessionManagement(session ->
+                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
 
         return http.build();

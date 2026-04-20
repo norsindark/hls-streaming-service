@@ -1,0 +1,43 @@
+errorCodes:
+  - code: 1000100000
+    message: Informational Root Message
+  - code: 1000200000
+    message: Successful Root Message
+  - code: 1000300000
+    message: Redirection Root Message
+  - code: 1000400000
+    message: Client Error Root Message
+  - code: 1000400002
+    message: "Accessing to [%s] is forbidden."
+  - code: 1000400003
+    message: "Authentication has failed."
+  - code: 1000400004
+    message: "Parsing token has failed."
+  - code: 1000400005
+    message: "Token is invalid."
+  - code: 1000400006
+    message: "Token is missing."
+  - code: 1000400007
+    message: "Token has expired."
+  - code: 1000400008
+    message: "Not Found KMS Key Info: %s"
+  - code: 1000400009
+    message: "SecretId: %s must have at least one version"
+  - code: 1000400010
+    message: "SecretId: %s not found"
+  - code: 1000400011
+    message: "SecretVersion: %s not found"
+  - code: 1000400012
+    message: "Token with version: %s invalid"
+  - code: 1000400013
+    message: "cache id must be not null."
+  - code: 1000400014
+    message: "The process is locked. Locked data %s"
+  - code: 1000400015
+    message: "Too Many Requests"
+  - code: 1000400016
+    message: "You don't have permission to use this feature."
+  - code: 1000400017
+    message: "Private key has been must."
+  - code: 1000500000
+    message: "Internal Server Error"

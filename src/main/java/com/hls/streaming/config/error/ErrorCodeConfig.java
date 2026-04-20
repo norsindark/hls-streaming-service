@@ -2,10 +2,12 @@ package com.hls.streaming.config.error;
 
 import com.hls.streaming.constant.ErrorConfigConstants;
 import com.hls.streaming.enums.ErrorEnum;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 public class ErrorCodeConfig {
 
     private final Map<Long, ErrorCodeMessage> errorCodeMap;
@@ -43,10 +45,6 @@ public class ErrorCodeConfig {
                 .code(errorEnum.getCode())
                 .message(String.format(errorEnum.getMessage(), args))
                 .build();
-    }
-
-    public Map<Long, ErrorCodeMessage> getErrorCodeMap() {
-        return errorCodeMap;
     }
 
     public ErrorCodeMessage internalServerErrorWithMessage(String errorMessage) {

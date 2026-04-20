@@ -6,9 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +17,10 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TokenClaim implements Serializable {
 
-    private UUID userId;
+    @Serial
+    private static final long serialVersionUID = -7810490836497183603L;
+
+    private String userId;
     private Set<UserRole> privileges;
     private TokenType type;
 }

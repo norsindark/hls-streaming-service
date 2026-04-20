@@ -4,12 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hls.streaming.config.error.ErrorCodeConfig;
+import com.hls.streaming.config.properties.TokenConfigProperties;
 import com.hls.streaming.constant.ErrorConfigConstants;
 import com.hls.streaming.exception.BadRequestException;
 import com.hls.streaming.exception.NotFoundException;
 import com.hls.streaming.exception.UnauthorizedException;
-import com.hls.streaming.config.error.ErrorCodeConfig;
-import com.hls.streaming.config.properties.TokenConfigProperties;
 import com.hls.streaming.security.constants.SecurityConstant;
 import com.hls.streaming.security.models.*;
 import com.hls.streaming.security.utils.ECDSAUtils;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class TokenSupporter {
 
     private static final Base64.Decoder DECODER = Base64.getDecoder();
-    public static final UUID SYSTEM_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final String SYSTEM_ID = "000000000000000000000000";
 
     private final ObjectMapper objectMapper;
     private final TokenConfigProperties tokenConfig;
@@ -41,7 +41,7 @@ public class TokenSupporter {
     private final Map<String, TokenVerifier> tokenVerifiersMap;
 
     @Autowired
-    public TokenSupporter (final ObjectMapper objectMapper,
+    public TokenSupporter(final ObjectMapper objectMapper,
             final TokenConfigProperties tokenConfig,
             final ErrorCodeConfig errorCodeConfig) {
         this.objectMapper = objectMapper;
@@ -81,7 +81,7 @@ public class TokenSupporter {
 
     public String generateSystemToken() {
         final var tokenClaim = TokenClaim.builder()
-                .userId(SYSTEM_UUID)
+                .userId(SYSTEM_ID)
                 .privileges(Set.of(UserRole.SYSTEM))
                 .type(TokenType.ACCESS_TOKEN)
                 .build();

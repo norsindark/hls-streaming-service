@@ -15,11 +15,10 @@ import java.util.stream.Collectors;
 public class RequestMatcherUtils {
 
     public static RequestMatcher createRequestMatcherWithOrPatternByPaths(final Set<String> paths) {
-        final List<RequestMatcher> matchers =
-                CollectionUtils.emptyIfNull(paths)
-                        .stream()
-                        .map(AntPathRequestMatcher::new)
-                        .collect(Collectors.toList());
+        List<RequestMatcher> matchers = CollectionUtils.emptyIfNull(paths)
+                .stream()
+                .map(path -> new AntPathRequestMatcher(path, null))
+                .collect(Collectors.toList());
         return new OrRequestMatcher(matchers);
     }
 

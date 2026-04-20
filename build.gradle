@@ -9,6 +9,8 @@ apply plugin: 'jacoco'
 apply plugin: 'com.diffplug.spotless'
 apply from: "$rootDir/spotless.gradle"
 
+apply plugin: "io.spring.dependency-management"
+
 group = project.findProperty("group")
 
 java {
@@ -55,13 +57,19 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // documentation
-    //    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc}"
 
     // logging
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
     // jackson
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    implementation "com.aventrix.jnanoid:jnanoid:${jNanoId}"
+
+    // Mongock
+    implementation platform("io.mongock:mongock-bom:${mongOck}")
+    implementation "io.mongock:mongock-springboot-v3"
+    implementation "io.mongock:mongodb-springdata-v4-driver"
 
     // Mockito
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
