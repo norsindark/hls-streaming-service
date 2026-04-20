@@ -5,7 +5,6 @@ import com.hls.streaming.security.models.UserRole;
 import com.hls.streaming.security.utils.UserRoleUtils;
 import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
@@ -14,7 +13,6 @@ import java.util.stream.Stream;
 
 @Getter
 @Setter
-@Component
 @ConfigurationProperties(prefix = "io.hls.api-security.authorization-rules")
 public class AuthorizationRuleConfigProperties {
 
