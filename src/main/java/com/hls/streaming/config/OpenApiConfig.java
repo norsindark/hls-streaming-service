@@ -17,20 +17,15 @@ import org.springframework.context.annotation.Configuration;
                 description = "API documentation for the HLS Streaming Platform (Mini-YouTube).",
                 contact = @Contact(
                         name = "SinD",
-                        email = "norsinlight@gmail.com"
-                )
-        ),
+                        email = "norsinlight@gmail.com")),
         security = {
                 @SecurityRequirement(name = "bearerAuth")
-        }
-)
+        })
 @SecurityScheme(
         name = "bearerAuth",
         description = "JWT Authorization header using the Bearer scheme. Enter your token here (Password Verification Token or Access Token).",
         scheme = "bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
-        in = SecuritySchemeIn.HEADER
-)
-public class OpenApiConfig {
-}
+        in = SecuritySchemeIn.HEADER)
+public class OpenApiConfig {}

@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Tag(name = "User API", description = "User authentication and management APIs")
 public interface UserLoginApi {
 
-    @Operation(summary = "Register a new user", description = "Create a new user account and return official Access and Refresh tokens")
+    @Operation(summary = "Register a new user",
+            description = "Create a new user account and return official Access and Refresh tokens")
     @PostMapping("/api/v1/public/register")
     @ResponseStatus(HttpStatus.CREATED)
     UserAccessResponse register(@Valid @RequestBody RegisterUserRequest request);
 
     @Operation(summary = "Step 1: Identify user",
             description = "Check if email or username exists and return a temporary verification token")
-    @PostMapping("/api/v1/users/identify")
+    @PostMapping("/api/v1/public/users/identify")
     @ResponseStatus(HttpStatus.OK)
     UserAccessResponse identifyUser(@Valid @RequestBody IdentifyUserRequest request);
 

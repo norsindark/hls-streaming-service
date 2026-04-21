@@ -41,22 +41,19 @@ public class SecurityConfig {
         if (BooleanUtils.isTrue(globalApiSecurityEnabled)) {
             log.info("Spring Global Security enabled");
             http.csrf(AbstractHttpConfigurer::disable)
-                    .sessionManagement(session ->
-                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .formLogin(AbstractHttpConfigurer::disable)
                     .httpBasic(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers(authorizationRuleConfig
                                     .getSkippedAuthorization()
                                     .getSkippedApis()
-                                    .toArray(String[]::new)
-                            ).permitAll()
-                            .anyRequest().authenticated()
-                    )
+                                    .toArray(String[]::new))
+                            .permitAll()
+                            .anyRequest().authenticated())
                     .exceptionHandling(ex -> ex
                             .authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper))
-                            .accessDeniedHandler(new RestAccessDeniedHandler(objectMapper))
-                    );
+                            .accessDeniedHandler(new RestAccessDeniedHandler(objectMapper)));
 
             // JWT Authentication Filter
             http.addFilterBefore(
@@ -64,13 +61,12 @@ public class SecurityConfig {
                             authorizationRuleConfig,
                             tokenClaimExtractor,
                             authenticationVerifier,
-                            errorCodeConfig
-                    ), UsernamePasswordAuthenticationFilter.class);
+                            errorCodeConfig),
+                    UsernamePasswordAuthenticationFilter.class);
         } else {
             log.warn("Security disabled");
             http.csrf(AbstractHttpConfigurer::disable)
-                    .sessionManagement(session ->
-                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
 

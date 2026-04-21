@@ -1,7 +1,10 @@
 package com.hls.streaming.services.user;
 
+import com.hls.streaming.documents.user.UserDetail;
+import com.hls.streaming.documents.user.UserDocument;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
+import com.hls.streaming.dtos.user.RegisterUserRequest;
 import com.hls.streaming.dtos.user.UserLiteResponse;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
 import com.hls.streaming.enums.UserFlowStatusEnum;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,39 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional(rollbackFor = Exception.class)
+    public UserAccessResponse register(final RegisterUserRequest request) {
+        if (StringUtils.isBlank(request.getUsername()) || StringUtils.isBlank(request.getEmail())
+                || StringUtils.isBlank(request.getPassword())) {
+            throw new BadRequestException("Required fields cannot be empty");
+        }
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new BadRequestException("Username already exists");
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email already exists");
+        }
+
+        final var userDetail = UserDetail.builder()
+                .enableNotify(true)
+                .build();
+
+        final var user = UserDocument.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .displayName(StringUtils.isNotBlank(request.getDisplayName()) ? request.getDisplayName() : request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .status(UserStatusEnum.ACTIVE)
+                .detail(userDetail)
+                .build();
+
+        final var savedUser = userRepository.save(user);
+
+        return tokenService.generateAccessTokenPair(savedUser);
+    }
 
     public UserAccessResponse identifyUser(final IdentifyUserRequest request) {
         if (StringUtils.isBlank(request.getIdentifier())) {
