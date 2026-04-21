@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 
 public enum UserRole {
 
-    ADMIN(SecurityConstant.UserRole.ADMIN),
-    SYSTEM(SecurityConstant.UserRole.SYSTEM),
-    USER(SecurityConstant.UserRole.USER),
+    ADMIN(SecurityConstant.UserRole.ADMIN), SYSTEM(SecurityConstant.UserRole.SYSTEM), USER(SecurityConstant.UserRole.USER),
 
     ANONYMOUS(SecurityConstant.UserRole.ANONYMOUS);
 
@@ -23,8 +21,7 @@ public enum UserRole {
             ADMIN.value, ADMIN,
             SYSTEM.value, SYSTEM,
             USER.value, USER,
-            ANONYMOUS.value, ANONYMOUS
-    );
+            ANONYMOUS.value, ANONYMOUS);
 
     UserRole(final String value) {
         this.value = value;

@@ -23,7 +23,6 @@ public class AbstractHLSException extends RuntimeException {
         this.errorCodeMessage = errorCodeMessage;
     }
 
-
     protected AbstractHLSException(ErrorCodeMessage errorCodeMessage, Throwable cause, Object optionalData) {
         super(errorCodeMessage.getMessage(), cause);
         this.errorCodeMessage = errorCodeMessage;
@@ -40,7 +39,6 @@ public class AbstractHLSException extends RuntimeException {
         this.errorCodeMessage = errorCodeMessage;
         this.optionalData = optionalData;
     }
-
 
     protected AbstractHLSException(String message) {
         super(message);

@@ -17,7 +17,7 @@ public class UserLoginController implements UserLoginApi {
 
     @Override
     public UserAccessResponse register(final RegisterUserRequest request) {
-        return null;
+        return userService.register(request);
     }
 
     @Override
