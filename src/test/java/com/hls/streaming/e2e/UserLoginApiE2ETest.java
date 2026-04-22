@@ -79,8 +79,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         MvcResult result = mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("WAITING_FOR_VERIFICATION"))
                 .andExpect(jsonPath("$.passwordVerificationToken").isNotEmpty())
@@ -101,8 +101,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("WAITING_FOR_VERIFICATION"))
                 .andExpect(jsonPath("$.passwordVerificationToken").isNotEmpty());
@@ -116,8 +116,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -129,8 +129,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
 
@@ -145,8 +145,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -161,8 +161,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -175,8 +175,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         MvcResult result = mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
@@ -199,8 +199,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -213,8 +213,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
 
@@ -227,8 +227,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -240,8 +240,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(identifyRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(identifyRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("WAITING_FOR_VERIFICATION"));
 
@@ -251,8 +251,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(verifyRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
@@ -284,8 +284,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/verify-password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -293,8 +293,8 @@ class UserLoginApiE2ETest {
     @DisplayName("Should return 400 when request body is invalid JSON")
     void shouldReturnBadRequestWhenInvalidJson() throws Exception {
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ invalid json }"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ invalid json }"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -306,8 +306,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userInfo.username").value("testuser"))
                 .andExpect(jsonPath("$.userInfo.displayName").value("Test User"));
@@ -321,8 +321,8 @@ class UserLoginApiE2ETest {
                 .build();
 
         MvcResult result = mockMvc.perform(post("/api/v1/users/identify")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andReturn();
 

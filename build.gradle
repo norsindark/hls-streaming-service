@@ -1,15 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version "${springBootVersion}"
-    id "com.diffplug.spotless" version "$spotlessVersion"
-    id 'io.spring.dependency-management' version "${springDependencyManagementPlugin}"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency)
+    alias(libs.plugins.spotless)
 }
 
 apply plugin: 'jacoco'
-apply plugin: 'com.diffplug.spotless'
 apply from: "$rootDir/spotless.gradle"
-
-apply plugin: "io.spring.dependency-management"
 
 group = project.findProperty("group")
 
@@ -22,67 +19,49 @@ java {
 repositories {
     mavenCentral()
 }
-
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    implementation "com.auth0:java-jwt:${javaJwtVersion}"
+    implementation libs.java.jwt
 
-    // Apache Commons
-    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
-    implementation "org.apache.commons:commons-collections4:${commonsCollections4Version}"
-    implementation "org.apache.commons:commons-text:${commonsTextVersion}"
+    implementation libs.commons.lang3
+    implementation libs.commons.collections4
+    implementation libs.commons.text
 
-    // retry
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    implementation platform(libs.aws.bom)
+    implementation libs.aws.s3
+
+    implementation libs.ffmpeg
+
+    implementation libs.springdoc
+
+    implementation libs.jnanoid
+
+    implementation platform(libs.mongock.bom)
+    implementation libs.mongock.spring
+    implementation libs.mongock.driver
+
+    implementation(libs.mongodb.core)
+    implementation(libs.jackson.databind)
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // health check
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // Spring test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.junit
 
-    // documentation
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc}"
-
-    // logging
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
-
-    // jackson
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation "com.aventrix.jnanoid:jnanoid:${jNanoId}"
-
-    // Mongock
-    implementation platform("io.mongock:mongock-bom:${mongOck}")
-    implementation "io.mongock:mongock-springboot-v3"
-    implementation "io.mongock:mongodb-springdata-v4-driver"
-
-    // Mockito
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-
-    // Testcontainers BOM
-    //    testImplementation platform("org.testcontainers:testcontainers-bom:${testcontainersVersion}")
-    //    testImplementation 'org.testcontainers:junit-jupiter'
-    //    testImplementation 'org.testcontainers:mongodb'
-    //    testImplementation 'org.testcontainers:rabbitmq'
-    //    testImplementation 'org.testcontainers:redis'
-
-    testImplementation 'org.awaitility:awaitility:4.2.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {

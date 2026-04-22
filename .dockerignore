@@ -1,0 +1,26 @@
+# build output
+build/
+out/
+
+# gradle cache
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# git
+.git/
+.github
+.gitignore
+
+# logs
+*.log
+
+# docker files (optional)
+docker
+Dockerfile
+docker-compose.yml
+
+# documentation
+*.md

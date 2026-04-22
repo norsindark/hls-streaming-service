@@ -1,0 +1,49 @@
+[versions]
+spring-boot = "3.3.5"
+spring-dependency-management = "1.1.7"
+spotless = "6.25.0"
+
+java-jwt = "4.4.0"
+commons-lang3 = "3.18.0"
+commons-collections4 = "4.4"
+commons-text = "1.11.0"
+aws = "2.25.50"
+ffmpeg = "0.8.0"
+springdoc = "2.6.0"
+jnanoid = "2.0.0"
+mongock = "5.4.3"
+mockito = "5.12.0"
+jackson = "2.17.2"
+mongodb = "5.1.0"
+
+[libraries]
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "java-jwt" }
+
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "commons-collections4" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+
+aws-bom = { module = "software.amazon.awssdk:bom", version.ref = "aws" }
+aws-s3 = { module = "software.amazon.awssdk:s3" }
+
+ffmpeg = { module = "net.bramp.ffmpeg:ffmpeg", version.ref = "ffmpeg" }
+
+springdoc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+
+jnanoid = { module = "com.aventrix.jnanoid:jnanoid", version.ref = "jnanoid" }
+
+mongock-bom = { module = "io.mongock:mongock-bom", version.ref = "mongock" }
+mongock-spring = { module = "io.mongock:mongock-springboot-v3" }
+mongock-driver = { module = "io.mongock:mongodb-springdata-v4-driver" }
+
+mongodb-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "mongodb" }
+
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

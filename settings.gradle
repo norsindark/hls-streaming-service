@@ -1,1 +1,8 @@
-rootProject.name = 'hls-streaming-service'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "hls-streaming-service"
