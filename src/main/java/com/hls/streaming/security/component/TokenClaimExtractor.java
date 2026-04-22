@@ -52,7 +52,7 @@ public class TokenClaimExtractor {
 
         var tempRequestURI = request.getRequestURI();
         if (StringUtils.isNotBlank(tempRequestURI)) {
-            tempRequestURI = StringUtils.remove(request.getRequestURI(), servletContextPath);
+            tempRequestURI = request.getRequestURI().replaceFirst(servletContextPath, "");
         }
 
         if (wsEndpoints.contains(tempRequestURI)) {

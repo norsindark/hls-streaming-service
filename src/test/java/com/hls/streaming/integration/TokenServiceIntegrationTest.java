@@ -83,7 +83,8 @@ class TokenServiceIntegrationTest {
     @Test
     @DisplayName("Should generate token with correct type")
     void shouldGenerateTokenWithCorrectType() {
-        String token = tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.PASSWORD_VERIFICATION_TOKEN);
+        String token =
+                tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.PASSWORD_VERIFICATION_TOKEN);
 
         assertNotNull(token);
         assertFalse(token.isEmpty());
@@ -95,7 +96,8 @@ class TokenServiceIntegrationTest {
     void shouldGenerateDifferentTokenTypes() {
         String accessToken = tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.ACCESS_TOKEN);
         String refreshToken = tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.REFRESH_TOKEN);
-        String passwordVerificationToken = tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.PASSWORD_VERIFICATION_TOKEN);
+        String passwordVerificationToken =
+                tokenService.generateToken(testUser, com.hls.streaming.security.models.TokenType.PASSWORD_VERIFICATION_TOKEN);
 
         assertNotNull(accessToken);
         assertNotNull(refreshToken);
