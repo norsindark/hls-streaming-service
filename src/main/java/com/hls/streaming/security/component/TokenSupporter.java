@@ -2,6 +2,7 @@ package com.hls.streaming.security.component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hls.streaming.config.error.ErrorCodeConfig;
@@ -73,6 +74,9 @@ public class TokenSupporter {
             final var jwt = tokenVerifier.verify(tokenWithoutBearer);
             final var tokenClaim = new String(DECODER.decode(jwt.getPayload()), StandardCharsets.UTF_8);
             return objectMapper.readValue(tokenClaim, FullTokenClaim.class);
+        } catch (final JWTVerificationException ex) {
+            log.error("Token signature verification failed", ex);
+            throw new UnauthorizedException(errorCodeConfig.getMessage(ErrorConfigConstants.TOKEN_INVALID), ex);
         } catch (final JsonProcessingException ex) {
             log.error("Parsing token has failed", ex);
             throw new BadRequestException(errorCodeConfig.getMessage(ErrorConfigConstants.PARSING_TOKEN_FAILED), ex);
@@ -91,12 +95,12 @@ public class TokenSupporter {
 
     @SuppressWarnings("unchecked")
     public String generateToken(final TokenClaim tokenClaim) {
+        final var tokenType = tokenClaim.getType();
         final var insNow = Instant.now().minus(1, ChronoUnit.SECONDS);
         final var now = new Date(insNow.toEpochMilli());
-        final var livedTimeInMinutes =
-                Optional.ofNullable(tokenConfigMap.get(TokenType.ACCESS_TOKEN))
+        final var livedTimeInMinutes = Optional.ofNullable(tokenConfigMap.get(tokenType))
                         .orElseThrow(() -> new UnsupportedOperationException(
-                                String.format("Unsupported the TokenType %s", TokenType.ACCESS_TOKEN)))
+                                String.format("Unsupported the TokenType %s", tokenType)))
                         .getLivedTime().toMinutes();
         final var expiredAt = new Date(insNow.plus(livedTimeInMinutes, ChronoUnit.MINUTES).toEpochMilli());
 
