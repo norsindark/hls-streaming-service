@@ -1,7 +1,6 @@
 package com.hls.streaming.security.jwt;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hls.streaming.config.error.ErrorCodeConfig;
 import com.hls.streaming.config.properties.AuthorizationRuleConfigProperties;
 import com.hls.streaming.constant.ErrorConfigConstants;
@@ -17,11 +16,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.util.Map;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,12 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ErrorCodeConfig errorCodeConfig;
     private final boolean authorizeAll;
     private final String urlPrefix;
+    private final HandlerExceptionResolver exceptionResolver;
 
     public JwtAuthenticationFilter(
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
             AuthorizationRuleConfigProperties authorizationRuleConfig,
             TokenClaimExtractor tokenClaimExtractor,
             JwtAuthenticationVerifier authenticationVerifier,
             ErrorCodeConfig errorCodeConfig) {
+        this.exceptionResolver = exceptionResolver;
         this.ignoreRequests = RequestMatcherUtils.createRequestMatcherWithOrPatternByPaths(
                 authorizationRuleConfig.getSkippedAuthorization().getSkippedApis());
         this.tokenClaimExtractor = tokenClaimExtractor;
@@ -53,49 +55,67 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) {
 
+        final TokenClaim tokenClaim;
         try {
 
             if (!isRequiredAuthentication(request)) {
-                if (request.getHeader(SecurityConstant.AUTHORIZATION) != null) {
-                    TokenClaim tokenClaim = parseToken(request);
-                    var authentication = authenticationVerifier.accessTokenAnonymous(tokenClaim);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (!request.getRequestURI().contains("/management/health")) {
+                    log.info("Skipping authentication request = {}", request.getRequestURI());
                 }
 
+                if (request.getHeader(SecurityConstant.AUTHORIZATION) != null) {
+                    tokenClaim = parseToken(request);
+                    final var authentication = authenticationVerifier.accessTokenAnonymous(tokenClaim);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            if (authorizeAll || (StringUtils.isNotBlank(urlPrefix) && request.getRequestURI().startsWith(urlPrefix))) {
-                TokenClaim tokenClaim = parseToken(request);
-                var authentication = authenticationVerifier.verifyAccessPermission(request, tokenClaim);
+            if (authorizeAll) {
+                log.info("Attempting Authentication: request = {}", request.getRequestURI());
+                tokenClaim = parseToken(request);
+                final var authentication = authenticationVerifier.verifyAccessPermission(request, tokenClaim);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                if (StringUtils.isNotBlank(urlPrefix) && request.getRequestURI().startsWith(urlPrefix)) {
+                    log.info("Attempting Authentication: request = {}", request.getRequestURI());
+                    tokenClaim = parseToken(request);
+                    final var authentication = authenticationVerifier.verifyAccessPermission(request, tokenClaim);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
 
             filterChain.doFilter(request, response);
-
-        } catch (TokenExpiredException ex) {
-            log.warn("Token expired");
-            writeError(response, ex);
-        } catch (AuthorizationException ex) {
-            log.warn("Authorization missing");
-            writeError(response, ex);
-        } catch (JWTDecodeException ex) {
-            log.warn("JWT decode error");
-            writeError(response, new UnauthorizedException(errorCodeConfig.getMessage(ErrorConfigConstants.TOKEN_INVALID)));
-        } catch (ForbiddenException ex) {
-            log.warn("Forbidden");
-            writeError(response, ex);
-        } catch (BadRequestException ex) {
-            log.warn("Bad Request");
-            writeError(response, ex);
-        } catch (Exception ex) {
-            writeError(response,
-                    new InternalServerErrorException(errorCodeConfig.getMessage(), ex));
+        } catch (final TokenExpiredException ex) {
+            log.warn("Token has been expired.");
+            exceptionResolver.resolveException(request, response, null, ex);
+        } catch (final AuthorizationException ex) {
+            log.warn("Token is missing.");
+            exceptionResolver.resolveException(request, response, null, ex);
+        } catch (final JWTDecodeException ex) {
+            log.warn("Token Decoding has error.");
+            exceptionResolver.resolveException(request, response, null,
+                    new UnauthorizedException(errorCodeConfig.getMessage(ErrorConfigConstants.TOKEN_INVALID)));
+        } catch (final ForbiddenException ex) {
+            log.warn("Forbidden API Accessing.");
+            exceptionResolver.resolveException(request, response, null, ex);
+        } catch (final BadRequestException ex) {
+            log.warn("Bad Request Error.");
+            exceptionResolver.resolveException(request, response, null, ex);
+        } catch (final Exception ex) {
+            log.warn("Unexpected Error.");
+            ex.printStackTrace();
+            exceptionResolver.resolveException(request, response, null,
+                    new InternalServerErrorException(errorCodeConfig.getMessage(), ex.getCause()));
         } finally {
-            SecurityContextHolder.clearContext();
-            AppSecurityContextHolder.clearContext();
+            clearLocalThreadData();
         }
+    }
+
+    private void clearLocalThreadData() {
+        SecurityContextHolder.clearContext();
+        AppSecurityContextHolder.clearContext();
     }
 
     private TokenClaim parseToken(HttpServletRequest request) {
@@ -111,12 +131,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return !ignoreRequests.matches(request);
     }
 
-    private void writeError(HttpServletResponse response, RuntimeException ex) {
-        try {
-            response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(new ObjectMapper()
-                    .writeValueAsString(Map.of("error", ex.getMessage())));
-        } catch (Exception ignored) {}
-    }
 }
