@@ -5,8 +5,8 @@ import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
 import com.hls.streaming.enums.UserStatusEnum;
 import com.hls.streaming.repositories.user.UserRepository;
+import com.hls.streaming.security.component.TokenSupporter;
 import com.hls.streaming.services.token.TokenService;
-import com.hls.streaming.services.token.generator.UserTokenGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ class TokenServiceIntegrationTest {
     private TokenService tokenService;
 
     @Autowired
-    private UserTokenGenerator tokenGenerator;
+    private TokenSupporter tokenGenerator;
 
     @Autowired
     private UserRepository userRepository;

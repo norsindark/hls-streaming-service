@@ -4,11 +4,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public class JwtUserDetails implements UserDetails {
+
+    @Serial
+    private static final long serialVersionUID = -1365719434007413018L;
 
     private final TokenClaim claim;
 

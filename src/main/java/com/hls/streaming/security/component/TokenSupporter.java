@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hls.streaming.config.error.ErrorCodeConfig;
 import com.hls.streaming.config.properties.TokenConfigProperties;
 import com.hls.streaming.constant.ErrorConfigConstants;
+import com.hls.streaming.dtos.token.GenerateTokenRequest;
 import com.hls.streaming.exception.BadRequestException;
 import com.hls.streaming.exception.NotFoundException;
 import com.hls.streaming.exception.UnauthorizedException;
@@ -17,7 +18,6 @@ import com.hls.streaming.security.utils.ECDSAUtils;
 import com.hls.streaming.security.utils.MapUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -41,7 +41,6 @@ public class TokenSupporter {
     private final Map<TokenType, TokenConfigProperties.TokenConfig> tokenConfigMap;
     private final Map<String, TokenVerifier> tokenVerifiersMap;
 
-    @Autowired
     public TokenSupporter(final ObjectMapper objectMapper,
             final TokenConfigProperties tokenConfig,
             final ErrorCodeConfig errorCodeConfig) {
@@ -74,13 +73,43 @@ public class TokenSupporter {
             final var jwt = tokenVerifier.verify(tokenWithoutBearer);
             final var tokenClaim = new String(DECODER.decode(jwt.getPayload()), StandardCharsets.UTF_8);
             return objectMapper.readValue(tokenClaim, FullTokenClaim.class);
-        } catch (final JWTVerificationException ex) {
-            log.error("Token signature verification failed", ex);
-            throw new UnauthorizedException(errorCodeConfig.getMessage(ErrorConfigConstants.TOKEN_INVALID), ex);
         } catch (final JsonProcessingException ex) {
             log.error("Parsing token has failed", ex);
             throw new BadRequestException(errorCodeConfig.getMessage(ErrorConfigConstants.PARSING_TOKEN_FAILED), ex);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public String generateToken(final GenerateTokenRequest request, final Set<UserRole> roles) {
+
+        final var insNow = Instant.now();
+        final var now = new Date(insNow.toEpochMilli());
+
+        final var livedTimeInMinutes = Optional.ofNullable(tokenConfigMap.get(request.getTokenType()))
+                .orElseThrow(() -> new UnsupportedOperationException(
+                        String.format("Unsupported the TokenType %s", request.getTokenType())))
+                .getLivedTime()
+                .toMinutes();
+
+        final var expiredAt = new Date(insNow.plus(livedTimeInMinutes, ChronoUnit.MINUTES).toEpochMilli());
+
+        final var tokenClaim = TokenClaim.builder()
+                .userId(request.getUserId())
+                .privileges(roles)
+                .type(request.getTokenType())
+                .build();
+
+        final var userClaims = MapUtils.stripNullValue(objectMapper.convertValue(tokenClaim, Map.class));
+        final var claims = Map.of("tokenClaim", userClaims);
+        final var tokenVerifier = getLatestTokenVerifier();
+        return JWT.create()
+                .withKeyId(tokenVerifier.getVersion())
+                .withJWTId(UUID.randomUUID().toString())
+                .withPayload(claims)
+                .withIssuedAt(now)
+                .withIssuer(tokenConfig.getIssuer())
+                .withExpiresAt(expiredAt)
+                .sign(tokenVerifier.getAlgorithm());
     }
 
     public String generateSystemToken() {
@@ -90,11 +119,11 @@ public class TokenSupporter {
                 .type(TokenType.ACCESS_TOKEN)
                 .build();
 
-        return generateToken(tokenClaim);
+        return generateTokenInternal(tokenClaim);
     }
 
     @SuppressWarnings("unchecked")
-    public String generateToken(final TokenClaim tokenClaim) {
+    public String generateTokenInternal(final TokenClaim tokenClaim) {
         final var tokenType = tokenClaim.getType();
         final var insNow = Instant.now().minus(1, ChronoUnit.SECONDS);
         final var now = new Date(insNow.toEpochMilli());
@@ -134,5 +163,4 @@ public class TokenSupporter {
                 .orElseThrow(() -> new UnauthorizedException(
                         errorCodeConfig.getMessage(ErrorConfigConstants.TOKEN_FROM_VERSION_INVALID, version)));
     }
-
 }

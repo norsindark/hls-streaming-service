@@ -5,10 +5,10 @@ import com.hls.streaming.dtos.token.GenerateTokenRequest;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
 import com.hls.streaming.enums.UserStatusEnum;
+import com.hls.streaming.security.component.TokenSupporter;
 import com.hls.streaming.security.models.TokenType;
 import com.hls.streaming.security.models.UserRole;
 import com.hls.streaming.services.token.TokenService;
-import com.hls.streaming.services.token.generator.UserTokenGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,7 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.*;
 class TokenServiceUnitTest {
 
     @Mock
-    private UserTokenGenerator tokenGenerator;
+    private TokenSupporter tokenGenerator;
 
     @InjectMocks
     private TokenService tokenService;
