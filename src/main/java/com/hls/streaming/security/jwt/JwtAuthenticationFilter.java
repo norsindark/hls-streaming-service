@@ -108,14 +108,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             ex.printStackTrace();
             exceptionResolver.resolveException(request, response, null,
                     new InternalServerErrorException(errorCodeConfig.getMessage(), ex.getCause()));
-        } finally {
-            clearLocalThreadData();
         }
-    }
-
-    private void clearLocalThreadData() {
-        SecurityContextHolder.clearContext();
-        AppSecurityContextHolder.clearContext();
     }
 
     private TokenClaim parseToken(HttpServletRequest request) {

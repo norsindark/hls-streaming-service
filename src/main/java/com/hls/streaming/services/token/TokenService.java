@@ -4,9 +4,9 @@ import com.hls.streaming.documents.user.UserDocument;
 import com.hls.streaming.dtos.token.GenerateTokenRequest;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
+import com.hls.streaming.security.component.TokenSupporter;
 import com.hls.streaming.security.models.TokenType;
 import com.hls.streaming.security.models.UserRole;
-import com.hls.streaming.services.token.generator.UserTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TokenService {
 
-    private final UserTokenGenerator tokenGenerator;
+    private final TokenSupporter tokenSupporter;
 
     public UserAccessResponse generateAccessTokenPair(final UserDocument userDocument) {
         final var userId = userDocument.getId();
@@ -32,8 +32,8 @@ public class TokenService {
                 .tokenType(TokenType.REFRESH_TOKEN)
                 .build();
 
-        final var accessToken = tokenGenerator.generateToken(accessTokenRequest, userRoles);
-        final var refreshToken = tokenGenerator.generateToken(refreshTokenRequest, userRoles);
+        final var accessToken = tokenSupporter.generateToken(accessTokenRequest, userRoles);
+        final var refreshToken = tokenSupporter.generateToken(refreshTokenRequest, userRoles);
 
         return UserAccessResponse.builder()
                 .accessToken(accessToken)
@@ -50,6 +50,6 @@ public class TokenService {
                 .tokenType(tokenType)
                 .build();
 
-        return tokenGenerator.generateToken(tokenRequest, userRoles);
+        return tokenSupporter.generateToken(tokenRequest, userRoles);
     }
 }

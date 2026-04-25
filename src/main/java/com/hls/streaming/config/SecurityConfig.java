@@ -8,10 +8,8 @@ import com.hls.streaming.security.entrypoint.RestAccessDeniedHandler;
 import com.hls.streaming.security.entrypoint.RestAuthenticationEntryPoint;
 import com.hls.streaming.security.jwt.JwtAuthenticationFilter;
 import com.hls.streaming.security.jwt.JwtAuthenticationVerifier;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +30,7 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(proxyTargetClass = true)
 public class SecurityConfig {
 
     @Value("${io.hls.api-security.enabled:true}")

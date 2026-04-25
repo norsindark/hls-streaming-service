@@ -93,7 +93,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), userDocument.getPassword())) {
-
             throw new BadRequestException("Invalid password");
         }
 

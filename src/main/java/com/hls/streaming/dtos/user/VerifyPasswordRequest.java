@@ -1,5 +1,6 @@
 package com.hls.streaming.dtos.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VerifyPasswordRequest {
 
-    @NotBlank(message = "User ID is required")
+    @JsonIgnore
     private String userId;
 
     @NotBlank(message = "Password is required")
