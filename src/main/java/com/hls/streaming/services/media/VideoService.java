@@ -9,6 +9,7 @@ import com.hls.streaming.storage.S3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +79,7 @@ public class VideoService {
 
     public void processHlsConversion(final String videoId) {
 
-        var video = videoRepository.findById(videoId)
+        var video = videoRepository.findById(new ObjectId(videoId))
                 .orElseThrow(() -> new IllegalStateException("Video not found: " + videoId));
 
         if (video.getStatus() == UploadProcess.DONE) {

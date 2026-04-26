@@ -30,8 +30,7 @@ public interface UserLoginApi {
     UserAccessResponse identifyUser(@Valid @RequestBody IdentifyUserRequest request);
 
     @Operation(summary = "Step 2: Verify password", description = "Verify password and return official Access and Refresh tokens")
-//    @PreAuthorize("hasAuthority('" + SecurityConstant.UserRole.USER + "')")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
     @PostMapping("/api/v1/users/verify-password")
     @ResponseStatus(HttpStatus.OK)
     UserAccessResponse verifyPassword(@Valid @RequestBody VerifyPasswordRequest request);

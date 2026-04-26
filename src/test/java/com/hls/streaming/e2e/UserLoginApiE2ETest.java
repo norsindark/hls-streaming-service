@@ -1,7 +1,7 @@
 package com.hls.streaming.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
 import com.hls.streaming.enums.UserStatusEnum;
@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Instant;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,14 +43,14 @@ class UserLoginApiE2ETest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private UserDocument testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
         String encodedPassword = passwordEncoder.encode("password123");
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")

@@ -1,6 +1,6 @@
 package com.hls.streaming.integration;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.enums.UserStatusEnum;
 import com.hls.streaming.repositories.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -29,14 +29,14 @@ class UserRepositoryIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private UserDocument testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
         String encodedPassword = passwordEncoder.encode("password123");
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")
@@ -58,7 +58,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find user by username")
     void shouldFindUserByUsername() {
-        Optional<UserDocument> foundUser = userRepository.findByUsername("testuser");
+        Optional<User> foundUser = userRepository.findByUsername("testuser");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testuser", foundUser.get().getUsername());
@@ -68,7 +68,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find user by email")
     void shouldFindUserByEmail() {
-        Optional<UserDocument> foundUser = userRepository.findByEmail("test@example.com");
+        Optional<User> foundUser = userRepository.findByEmail("test@example.com");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testuser", foundUser.get().getUsername());
@@ -78,7 +78,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should not find user with non-existent username")
     void shouldNotFindNonExistentUsername() {
-        Optional<UserDocument> foundUser = userRepository.findByUsername("nonexistent");
+        Optional<User> foundUser = userRepository.findByUsername("nonexistent");
 
         assertTrue(foundUser.isEmpty());
     }
@@ -86,7 +86,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should not find user with non-existent email")
     void shouldNotFindNonExistentEmail() {
-        Optional<UserDocument> foundUser = userRepository.findByEmail("nonexistent@example.com");
+        Optional<User> foundUser = userRepository.findByEmail("nonexistent@example.com");
 
         assertTrue(foundUser.isEmpty());
     }
@@ -94,7 +94,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find user by ID")
     void shouldFindUserById() {
-        Optional<UserDocument> foundUser = userRepository.findById("user-123");
+        Optional<User> foundUser = userRepository.findById("user-123");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testuser", foundUser.get().getUsername());
@@ -119,7 +119,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should find user with custom email query")
     void shouldFindUserWithCustomEmailQuery() {
-        Optional<UserDocument> foundUser = userRepository.findCustomUserByEmail("test@example.com");
+        Optional<User> foundUser = userRepository.findCustomUserByEmail("test@example.com");
 
         assertTrue(foundUser.isPresent());
         assertEquals("testuser", foundUser.get().getUsername());
@@ -128,7 +128,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should save new user")
     void shouldSaveNewUser() {
-        UserDocument newUser = UserDocument.builder()
+        User newUser = User.builder()
                 .id("user-456")
                 .username("newuser")
                 .email("new@example.com")
@@ -139,13 +139,13 @@ class UserRepositoryIntegrationTest {
                 .updatedAt(Instant.now())
                 .build();
 
-        UserDocument savedUser = userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
 
         assertNotNull(savedUser);
         assertEquals("newuser", savedUser.getUsername());
         assertEquals("new@example.com", savedUser.getEmail());
 
-        Optional<UserDocument> foundUser = userRepository.findByUsername("newuser");
+        Optional<User> foundUser = userRepository.findByUsername("newuser");
         assertTrue(foundUser.isPresent());
     }
 
@@ -155,12 +155,12 @@ class UserRepositoryIntegrationTest {
         testUser.setDisplayName("Updated Name");
         testUser.setStatus(UserStatusEnum.INACTIVE);
 
-        UserDocument updatedUser = userRepository.save(testUser);
+        User updatedUser = userRepository.save(testUser);
 
         assertEquals("Updated Name", updatedUser.getDisplayName());
         assertEquals(UserStatusEnum.INACTIVE, updatedUser.getStatus());
 
-        Optional<UserDocument> foundUser = userRepository.findByUsername("testuser");
+        Optional<User> foundUser = userRepository.findByUsername("testuser");
         assertEquals("Updated Name", foundUser.get().getDisplayName());
         assertEquals(UserStatusEnum.INACTIVE, foundUser.get().getStatus());
     }
@@ -170,7 +170,7 @@ class UserRepositoryIntegrationTest {
     void shouldDeleteUser() {
         userRepository.delete(testUser);
 
-        Optional<UserDocument> foundUser = userRepository.findByUsername("testuser");
+        Optional<User> foundUser = userRepository.findByUsername("testuser");
 
         assertTrue(foundUser.isEmpty());
     }
@@ -178,7 +178,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should get all users")
     void shouldGetAllUsers() {
-        UserDocument secondUser = UserDocument.builder()
+        User secondUser = User.builder()
                 .id("user-456")
                 .username("seconduser")
                 .email("second@example.com")
@@ -191,7 +191,7 @@ class UserRepositoryIntegrationTest {
 
         userRepository.save(secondUser);
 
-        List<UserDocument> users = userRepository.findAll();
+        List<User> users = userRepository.findAll();
 
         assertEquals(2, users.size());
     }
@@ -199,7 +199,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should handle null optional gracefully")
     void shouldHandleNullOptionalGracefully() {
-        Optional<UserDocument> foundUser = userRepository.findByEmail("nonexistent@example.com");
+        Optional<User> foundUser = userRepository.findByEmail("nonexistent@example.com");
 
         assertFalse(foundUser.isPresent());
         assertTrue(foundUser.isEmpty());
@@ -208,7 +208,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should maintain username uniqueness constraint")
     void shouldMaintainUsernameUniqueness() {
-        UserDocument duplicateUser = UserDocument.builder()
+        User duplicateUser = User.builder()
                 .id("user-duplicate")
                 .username("testuser")
                 .email("duplicate@example.com")
@@ -225,7 +225,7 @@ class UserRepositoryIntegrationTest {
     @Test
     @DisplayName("Should maintain email uniqueness constraint")
     void shouldMaintainEmailUniqueness() {
-        UserDocument duplicateUser = UserDocument.builder()
+        User duplicateUser = User.builder()
                 .id("user-duplicate")
                 .username("duplicateuser")
                 .email("test@example.com")
@@ -244,7 +244,7 @@ class UserRepositoryIntegrationTest {
     void shouldHandleStatusEnum() {
         userRepository.deleteAll();
 
-        UserDocument activeUser = UserDocument.builder()
+        User activeUser = User.builder()
                 .id("active-user")
                 .username("activeuser")
                 .email("active@example.com")
@@ -255,7 +255,7 @@ class UserRepositoryIntegrationTest {
                 .updatedAt(Instant.now())
                 .build();
 
-        UserDocument blockedUser = UserDocument.builder()
+        User blockedUser = User.builder()
                 .id("blocked-user")
                 .username("blockeduser")
                 .email("blocked@example.com")
@@ -269,7 +269,7 @@ class UserRepositoryIntegrationTest {
         userRepository.save(activeUser);
         userRepository.save(blockedUser);
 
-        List<UserDocument> allUsers = userRepository.findAll();
+        List<User> allUsers = userRepository.findAll();
         assertEquals(2, allUsers.size());
         assertTrue(allUsers.stream().anyMatch(u -> u.getStatus() == UserStatusEnum.ACTIVE));
         assertTrue(allUsers.stream().anyMatch(u -> u.getStatus() == UserStatusEnum.BLOCKED));

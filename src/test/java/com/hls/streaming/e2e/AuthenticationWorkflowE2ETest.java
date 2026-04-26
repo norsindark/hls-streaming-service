@@ -1,7 +1,7 @@
 package com.hls.streaming.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
 import com.hls.streaming.enums.UserStatusEnum;
@@ -58,11 +58,11 @@ class AuthenticationWorkflowE2ETest {
     @DisplayName("Single User Authentication")
     class SingleUserAuthenticationTests {
 
-        private UserDocument user;
+        private User user;
 
         @BeforeEach
         void setUp() {
-            user = UserDocument.builder()
+            user = User.builder()
                     .id("user-1")
                     .username("john")
                     .email("john@example.com")
@@ -140,7 +140,7 @@ class AuthenticationWorkflowE2ETest {
 
         @BeforeEach
         void setUp() {
-            UserDocument user1 = UserDocument.builder()
+            User user1 = User.builder()
                     .id("user-1")
                     .username("alice")
                     .email("alice@example.com")
@@ -151,7 +151,7 @@ class AuthenticationWorkflowE2ETest {
                     .updatedAt(Instant.now())
                     .build();
 
-            UserDocument user2 = UserDocument.builder()
+            User user2 = User.builder()
                     .id("user-2")
                     .username("bob")
                     .email("bob@example.com")
@@ -209,13 +209,13 @@ class AuthenticationWorkflowE2ETest {
     @DisplayName("Error Handling and Edge Cases")
     class ErrorHandlingAndEdgeCases {
 
-        private UserDocument activeUser;
-        private UserDocument inactiveUser;
-        private UserDocument blockedUser;
+        private User activeUser;
+        private User inactiveUser;
+        private User blockedUser;
 
         @BeforeEach
         void setUp() {
-            activeUser = UserDocument.builder()
+            activeUser = User.builder()
                     .id("active-user")
                     .username("active")
                     .email("active@example.com")
@@ -226,7 +226,7 @@ class AuthenticationWorkflowE2ETest {
                     .updatedAt(Instant.now())
                     .build();
 
-            inactiveUser = UserDocument.builder()
+            inactiveUser = User.builder()
                     .id("inactive-user")
                     .username("inactive")
                     .email("inactive@example.com")
@@ -237,7 +237,7 @@ class AuthenticationWorkflowE2ETest {
                     .updatedAt(Instant.now())
                     .build();
 
-            blockedUser = UserDocument.builder()
+            blockedUser = User.builder()
                     .id("blocked-user")
                     .username("blocked")
                     .email("blocked@example.com")
@@ -336,11 +336,11 @@ class AuthenticationWorkflowE2ETest {
     @DisplayName("Request/Response Validation")
     class RequestResponseValidation {
 
-        private UserDocument user;
+        private User user;
 
         @BeforeEach
         void setUp() {
-            user = UserDocument.builder()
+            user = User.builder()
                     .id("user-1")
                     .username("testuser")
                     .email("test@example.com")

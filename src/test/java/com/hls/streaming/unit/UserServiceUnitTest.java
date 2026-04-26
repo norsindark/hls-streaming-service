@@ -1,6 +1,6 @@
 package com.hls.streaming.unit;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
@@ -44,13 +44,13 @@ class UserServiceUnitTest {
     @InjectMocks
     private UserService userService;
 
-    private UserDocument testUser;
+    private User testUser;
     private IdentifyUserRequest identifyUserRequest;
     private VerifyPasswordRequest verifyPasswordRequest;
 
     @BeforeEach
     void setUp() {
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")

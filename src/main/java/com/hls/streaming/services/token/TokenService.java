@@ -1,9 +1,11 @@
 package com.hls.streaming.services.token;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.token.GenerateTokenRequest;
 import com.hls.streaming.dtos.token.UserAccessResponse;
+import com.hls.streaming.dtos.user.UserLiteResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
+import com.hls.streaming.enums.UserStatusEnum;
 import com.hls.streaming.security.component.TokenSupporter;
 import com.hls.streaming.security.models.TokenType;
 import com.hls.streaming.security.models.UserRole;
@@ -18,9 +20,9 @@ public class TokenService {
 
     private final TokenSupporter tokenSupporter;
 
-    public UserAccessResponse generateAccessTokenPair(final UserDocument userDocument) {
-        final var userId = userDocument.getId();
-        final var userRoles = Set.of(UserRole.USER);
+    public UserAccessResponse generateAccessTokenPair(final User user) {
+        final var userId = user.getId();
+        final var userRoles = user.getRoles();
 
         final var accessTokenRequest = GenerateTokenRequest.builder()
                 .userId(userId)
@@ -39,14 +41,21 @@ public class TokenService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .status(UserFlowStatusEnum.COMPLETED)
+                .userInfo(UserLiteResponse.builder()
+                        .email(user.getEmail())
+                        .username(user.getUsername())
+                        .displayName(user.getDisplayName())
+                        .isVerified(UserStatusEnum.ACTIVE.equals(user.getStatus()))
+                        .isAdmin(userRoles.contains(UserRole.ADMIN))
+                        .build())
                 .build();
     }
 
-    public String generateToken(final UserDocument userDocument, final TokenType tokenType) {
+    public String generateToken(final User user, final TokenType tokenType) {
         final var userRoles = Set.of(UserRole.USER);
 
         final var tokenRequest = GenerateTokenRequest.builder()
-                .userId(userDocument.getId())
+                .userId(user.getId())
                 .tokenType(tokenType)
                 .build();
 

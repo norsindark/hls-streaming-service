@@ -32,19 +32,6 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
 
-  mongo-express:
-    container_name: hls-mongo-express
-    image: mongo-express:latest
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_URL: mongodb://hls-mongodb:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: norsindark
-      ME_CONFIG_BASICAUTH_PASSWORD: "05022001"
-    depends_on:
-      - mongodb
-
   minio:
     container_name: hls-minio
     image: minio/minio:latest

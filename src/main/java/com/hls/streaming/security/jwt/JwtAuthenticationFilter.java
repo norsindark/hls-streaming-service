@@ -104,8 +104,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.warn("Bad Request Error.");
             exceptionResolver.resolveException(request, response, null, ex);
         } catch (final Exception ex) {
-            log.warn("Unexpected Error.");
-            ex.printStackTrace();
+            log.error("Unexpected error at URI={} method={}",
+                    request.getRequestURI(),
+                    request.getMethod(),
+                    ex);
             exceptionResolver.resolveException(request, response, null,
                     new InternalServerErrorException(errorCodeConfig.getMessage(), ex.getCause()));
         }

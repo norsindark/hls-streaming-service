@@ -39,5 +39,19 @@ errorCodes:
     message: "You don't have permission to use this feature."
   - code: 1000400017
     message: "Private key has been must."
+  - code: 1000400018
+    message: "Required fields cannot be empty"
+  - code: 1000400019
+    message: "Username already exists"
+  - code: 1000400020
+    message: "Email already exists"
+  - code: 1000400021
+    message: "User not found"
+  - code: 1000400022
+    message: "User is currently inactive"
+  - code: 1000400023
+    message: "Invalid password"
+  - code: 1000400024
+    message: "Identifier cannot be empty"
   - code: 1000500000
     message: "Internal Server Error"

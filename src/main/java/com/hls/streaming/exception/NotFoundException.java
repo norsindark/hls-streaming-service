@@ -4,8 +4,13 @@ import com.hls.streaming.config.error.ErrorCodeMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.Serial;
+
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class NotFoundException extends AbstractHLSException {
+
+    @Serial
+    private static final long serialVersionUID = -5954414858196851579L;
 
     public NotFoundException(ErrorCodeMessage errorCodeMessage) {
         super(errorCodeMessage);

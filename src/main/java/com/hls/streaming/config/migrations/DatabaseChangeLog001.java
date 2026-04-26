@@ -1,7 +1,7 @@
 package com.hls.streaming.config.migrations;
 
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.documents.user.UserDetail;
-import com.hls.streaming.documents.user.UserDocument;
 import com.hls.streaming.enums.UserStatusEnum;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -19,7 +19,7 @@ public class DatabaseChangeLog001 {
     @Execution
     public void execution(final MongoTemplate mongoTemplate) {
         final var query = new Query(Criteria.where("username").is("sind"));
-        final var exists = mongoTemplate.exists(query, UserDocument.class);
+        final var exists = mongoTemplate.exists(query, User.class);
 
         if (BooleanUtils.isFalse(exists)) {
             final var adminDetail = UserDetail.builder()
@@ -27,7 +27,7 @@ public class DatabaseChangeLog001 {
                     .enableNotify(true)
                     .build();
 
-            final var adminUser = UserDocument.builder()
+            final var adminUser = User.builder()
                     .username("sind")
                     .displayName("System Admin")
                     .email("norsindark@gmail.com")
@@ -45,6 +45,6 @@ public class DatabaseChangeLog001 {
     @RollbackExecution
     public void rollback(final MongoTemplate mongoTemplate) {
         final var query = new Query(Criteria.where("username").is("sind"));
-        mongoTemplate.remove(query, UserDocument.class);
+        mongoTemplate.remove(query, User.class);
     }
 }
