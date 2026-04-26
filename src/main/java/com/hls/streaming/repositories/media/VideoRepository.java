@@ -1,8 +1,9 @@
 package com.hls.streaming.repositories.media;
 
 import com.hls.streaming.documents.media.VideoDocument;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VideoRepository extends MongoRepository<VideoDocument, String> {}
+public interface VideoRepository extends MongoRepository<VideoDocument, ObjectId> {}

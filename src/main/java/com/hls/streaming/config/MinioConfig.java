@@ -19,7 +19,7 @@ public class MinioConfig {
 
     private final StorageConfig storageConfig;
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public S3Client awsS3Client() {
         var credentials = AwsBasicCredentials.create(storageConfig.getAccessKey(), storageConfig.getSecretKey());
         return S3Client.builder()
@@ -30,7 +30,7 @@ public class MinioConfig {
                 .build();
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public S3Presigner s3Presigner() {
         var credentials = AwsBasicCredentials.create(storageConfig.getAccessKey(), storageConfig.getSecretKey());
         return S3Presigner.builder()

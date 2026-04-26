@@ -20,9 +20,7 @@ public class UserAccessResponse {
     private String createPasswordToken;
     private String otpVerificationToken;
     private String passwordVerificationToken;
-    private String userName;
 
     private UserLiteResponse userInfo;
-
     private Long availableTime;
 }

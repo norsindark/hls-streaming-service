@@ -1,6 +1,6 @@
 package com.hls.streaming.integration;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
@@ -35,14 +35,14 @@ class UserServiceIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private UserDocument testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
         String encodedPassword = passwordEncoder.encode("password123");
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")
@@ -143,7 +143,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("Should handle multiple users in database")
     void shouldHandleMultipleUsers() {
-        UserDocument secondUser = UserDocument.builder()
+        User secondUser = User.builder()
                 .id("user-456")
                 .username("seconduser")
                 .email("second@example.com")

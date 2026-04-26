@@ -8,6 +8,8 @@ import com.hls.streaming.security.entrypoint.RestAccessDeniedHandler;
 import com.hls.streaming.security.entrypoint.RestAuthenticationEntryPoint;
 import com.hls.streaming.security.jwt.JwtAuthenticationFilter;
 import com.hls.streaming.security.jwt.JwtAuthenticationVerifier;
+import com.hls.streaming.security.permissions.HttpAuthorizationPermissionFilter;
+import com.hls.streaming.security.permissions.HttpAuthorizationPermissionVerifier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +44,7 @@ public class SecurityConfig {
     private final TokenClaimExtractor tokenClaimExtractor;
     private final JwtAuthenticationVerifier authenticationVerifier;
     private final ErrorCodeConfig errorCodeConfig;
+    private final HttpAuthorizationPermissionVerifier httpAuthorizationPermissionVerifier;
 
     public SecurityConfig(
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
@@ -49,13 +52,15 @@ public class SecurityConfig {
             ObjectMapper objectMapper,
             TokenClaimExtractor tokenClaimExtractor,
             JwtAuthenticationVerifier authenticationVerifier,
-            ErrorCodeConfig errorCodeConfig) {
+            ErrorCodeConfig errorCodeConfig,
+            HttpAuthorizationPermissionVerifier httpAuthorizationPermissionVerifier) {
         this.exceptionResolver = exceptionResolver;
         this.authorizationRuleConfig = authorizationRuleConfig;
         this.objectMapper = objectMapper;
         this.tokenClaimExtractor = tokenClaimExtractor;
         this.authenticationVerifier = authenticationVerifier;
         this.errorCodeConfig = errorCodeConfig;
+        this.httpAuthorizationPermissionVerifier = httpAuthorizationPermissionVerifier;
     }
 
     @Bean
@@ -83,6 +88,7 @@ public class SecurityConfig {
                             .authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper))
                             .accessDeniedHandler(new RestAccessDeniedHandler(objectMapper)));
 
+            // Authentication. Verify token type and path.
             http.addFilterBefore(
                     new JwtAuthenticationFilter(
                             exceptionResolver,
@@ -91,6 +97,14 @@ public class SecurityConfig {
                             authenticationVerifier,
                             errorCodeConfig),
                     UsernamePasswordAuthenticationFilter.class);
+
+            // Authorization. verify user roles
+            http.addFilterAfter(
+                    new HttpAuthorizationPermissionFilter(
+                            errorCodeConfig,
+                            authorizationRuleConfig,
+                            httpAuthorizationPermissionVerifier),
+                    JwtAuthenticationFilter.class);
         } else {
             log.warn("Security disabled");
             http.csrf(AbstractHttpConfigurer::disable)

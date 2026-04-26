@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.Environment;
 import org.springframework.retry.annotation.EnableRetry;
@@ -17,10 +18,10 @@ import java.util.Optional;
 //        SecurityAutoConfiguration.class,
 //        ManagementWebSecurityAutoConfiguration.class
 //})
-@SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableRetry
 @ConfigurationPropertiesScan
+@SpringBootApplication(scanBasePackages = "com.hls")
 public class HlsApplication {
 
     public static void main(String[] args) {
@@ -45,13 +46,13 @@ public class HlsApplication {
         String appName = env.getProperty("spring.application.name", "application");
 
         log.info("""
-                ----------------------------------------------------------
-                Application '{}' is running!
-                Local:      {}://localhost:{}{}
-                External:   {}://{}:{}{}
-                Profile(s): {}
-                ----------------------------------------------------------
-                """,
+                        ----------------------------------------------------------
+                        Application '{}' is running!
+                        Local:      {}://localhost:{}{}
+                        External:   {}://{}:{}{}
+                        Profile(s): {}
+                        ----------------------------------------------------------
+                        """,
                 appName,
                 protocol, serverPort, contextPath,
                 protocol, hostAddress, serverPort, contextPath,

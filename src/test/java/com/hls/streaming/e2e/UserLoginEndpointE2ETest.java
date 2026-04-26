@@ -1,7 +1,7 @@
 package com.hls.streaming.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.user.IdentifyUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
 import com.hls.streaming.enums.UserStatusEnum;
@@ -43,14 +43,14 @@ class UserLoginEndpointE2ETest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private UserDocument primaryUser;
-    private UserDocument secondaryUser;
+    private User primaryUser;
+    private User secondaryUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
-        primaryUser = UserDocument.builder()
+        primaryUser = User.builder()
                 .id("primary-user")
                 .username("primary")
                 .email("primary@example.com")
@@ -62,7 +62,7 @@ class UserLoginEndpointE2ETest {
                 .updatedAt(Instant.now())
                 .build();
 
-        secondaryUser = UserDocument.builder()
+        secondaryUser = User.builder()
                 .id("secondary-user")
                 .username("secondary")
                 .email("secondary@example.com")

@@ -11,7 +11,7 @@ public class ErrorConfigConstants {
     //----------------------successful----------------------
     public static final long SUCCESS = 1000200000L;
 
-    //----------------------successful----------------------
+    //----------------------redirection----------------------
     public static final long REDIRECTION = 1000300000L;
 
     //----------------------client error----------------------
@@ -33,7 +33,15 @@ public class ErrorConfigConstants {
     public static final long MISSING_PERMISSION = 1000400016L;
     public static final long MISSING_PRIVATE_KEY = 1000400017L;
 
+    // -------- USER DOMAIN --------
+    public static final long USER_REQUIRED_FIELDS_EMPTY = 1000400018L;
+    public static final long USERNAME_ALREADY_EXISTS = 1000400019L;
+    public static final long EMAIL_ALREADY_EXISTS = 1000400020L;
+    public static final long USER_NOT_FOUND = 1000400021L;
+    public static final long USER_INACTIVE = 1000400022L;
+    public static final long INVALID_PASSWORD = 1000400023L;
+    public static final long IDENTIFIER_EMPTY = 1000400024L;
+
     //----------------------server error----------------------
     public static final long INTERNAL_SERVER_ERROR = 1000500000L;
-
 }

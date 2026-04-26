@@ -1,6 +1,6 @@
 package com.hls.streaming.integration;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
 import com.hls.streaming.enums.UserStatusEnum;
@@ -33,13 +33,13 @@ class TokenServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    private UserDocument testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
 
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")
@@ -120,7 +120,7 @@ class TokenServiceIntegrationTest {
     @Test
     @DisplayName("Should handle different users independently")
     void shouldHandleDifferentUsersIndependently() {
-        UserDocument secondUser = UserDocument.builder()
+        User secondUser = User.builder()
                 .id("user-456")
                 .username("seconduser")
                 .email("second@example.com")

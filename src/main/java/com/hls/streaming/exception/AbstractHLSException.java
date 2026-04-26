@@ -2,7 +2,12 @@ package com.hls.streaming.exception;
 
 import com.hls.streaming.config.error.ErrorCodeMessage;
 
+import java.io.Serial;
+
 public class AbstractHLSException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = -4384282243951695222L;
 
     private ErrorCodeMessage errorCodeMessage;
     private Object optionalData;

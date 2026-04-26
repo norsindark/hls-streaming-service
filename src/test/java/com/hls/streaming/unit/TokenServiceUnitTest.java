@@ -1,6 +1,6 @@
 package com.hls.streaming.unit;
 
-import com.hls.streaming.documents.user.UserDocument;
+import com.hls.streaming.documents.user.User;
 import com.hls.streaming.dtos.token.GenerateTokenRequest;
 import com.hls.streaming.dtos.token.UserAccessResponse;
 import com.hls.streaming.enums.UserFlowStatusEnum;
@@ -36,11 +36,11 @@ class TokenServiceUnitTest {
     @InjectMocks
     private TokenService tokenService;
 
-    private UserDocument testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
-        testUser = UserDocument.builder()
+        testUser = User.builder()
                 .id("user-123")
                 .username("testuser")
                 .email("test@example.com")

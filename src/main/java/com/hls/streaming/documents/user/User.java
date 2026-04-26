@@ -1,6 +1,7 @@
 package com.hls.streaming.documents.user;
 
 import com.hls.streaming.enums.UserStatusEnum;
+import com.hls.streaming.security.models.UserRole;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -13,6 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -20,13 +23,12 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "hls_users")
-public class UserDocument implements Serializable {
+public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -416249910350586534L;
 
     @Id
-    @Field(name = "id")
     private String id;
 
     @Version
@@ -55,6 +57,10 @@ public class UserDocument implements Serializable {
 
     @Field("detail")
     private UserDetail detail;
+
+    @Field("roles")
+    @Builder.Default
+    private Set<UserRole> roles = new HashSet<>();
 
     @CreatedDate
     @Field("created_at")
