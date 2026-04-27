@@ -111,4 +111,19 @@ public class UserService {
 
         return tokenService.generateAccessTokenPair(userDocument);
     }
+
+    public UserLiteResponse getProfile(final String userId) {
+        final var userDocument = userRepository.findById(new ObjectId(userId))
+                .orElseThrow(() -> new NotFoundException(errorCodeConfig.getMessage(ErrorConfigConstants.USER_NOT_FOUND, userId)));
+
+        return UserLiteResponse.builder()
+                .id(userDocument.getId())
+                .username(userDocument.getUsername())
+                .email(userDocument.getEmail())
+                .displayName(userDocument.getDisplayName())
+                .avatar(userDocument.getAvatar())
+                .isActive(UserStatusEnum.ACTIVE.equals(userDocument.getStatus()))
+                .isAdmin(userDocument.getRoles().contains(UserRole.ADMIN))
+                .build();
+    }
 }
