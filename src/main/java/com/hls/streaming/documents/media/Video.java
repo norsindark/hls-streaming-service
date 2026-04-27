@@ -20,13 +20,12 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "hls_videos")
-public class VideoDocument implements Serializable {
+public class Video implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -79334098665055842L;
 
     @Id
-    @Field("id")
     private String id;
 
     @Version

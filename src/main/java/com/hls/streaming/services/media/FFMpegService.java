@@ -109,6 +109,7 @@ public class FFMpegService {
     }
 
     public double getVideoDuration(Path file) throws IOException, InterruptedException {
+
         var pb = new ProcessBuilder(
                 "ffprobe",
                 "-v", "error",
@@ -123,7 +124,20 @@ public class FFMpegService {
 
             var line = reader.readLine();
             p.waitFor();
-            return Double.parseDouble(line);
+
+            if (line == null || line.isBlank()) {
+                throw new IllegalStateException("Cannot read duration");
+            }
+
+            if (line.contains("N/A")) {
+                throw new IllegalStateException("Invalid duration from ffprobe: " + line);
+            }
+
+            try {
+                return Double.parseDouble(line.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException("Invalid duration format: " + line, e);
+            }
         }
     }
 
@@ -133,11 +147,23 @@ public class FFMpegService {
             return 0;
         }
 
-        var time = line.substring(idx + 5, idx + 16);
-        var parts = time.split(":");
-        return Integer.parseInt(parts[0]) * 3600 +
-                Integer.parseInt(parts[1]) * 60 +
-                Double.parseDouble(parts[2]);
+        try {
+            var timePart = line.substring(idx + 5).split(" ")[0];
+
+            if (timePart.contains("N/A")) {
+                return 0;
+            }
+
+            var parts = timePart.split(":");
+
+            return Integer.parseInt(parts[0]) * 3600 +
+                    Integer.parseInt(parts[1]) * 60 +
+                    Double.parseDouble(parts[2]);
+
+        } catch (Exception e) {
+            log.warn("Failed to parse ffmpeg time from line={}", line);
+            return 0;
+        }
     }
 
     public void uploadFolder(Path folder, String s3Folder) throws IOException {

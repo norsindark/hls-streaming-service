@@ -54,6 +54,11 @@ dependencies {
     implementation(libs.mongodb.core)
     implementation(libs.jackson.databind)
 
+    implementation libs.mapstruct
+
+    annotationProcessor libs.mapstruct.processor
+    annotationProcessor libs.lombok.mapstruct.binding
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
