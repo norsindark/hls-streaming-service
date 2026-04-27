@@ -1,20 +1,25 @@
 package com.hls.streaming.services.media;
 
-import com.hls.streaming.documents.media.VideoDocument;
+import com.hls.streaming.documents.media.Video;
+import com.hls.streaming.dtos.PageResponse;
 import com.hls.streaming.dtos.events.OnUploadVideoEvent;
-import com.hls.streaming.dtos.media.VideoUploadResponse;
+import com.hls.streaming.dtos.media.*;
 import com.hls.streaming.enums.UploadProcess;
+import com.hls.streaming.features.mapper.VideoMapper;
 import com.hls.streaming.repositories.media.VideoRepository;
 import com.hls.streaming.storage.S3Client;
+import com.hls.streaming.utils.FileUtils;
+import com.hls.streaming.utils.MediaUrlUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +35,32 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final S3Client s3Client;
     private final ApplicationEventPublisher publisher;
+    private final VideoMapper videoMapper;
+
+    public VideoResponse getVideoById(final String videoId) {
+
+        var video = videoRepository.findVideoByIdAndStatus(videoId, UploadProcess.DONE)
+                .orElseThrow(() -> new IllegalStateException("Video not found or not ready"));
+        return videoMapper.toResponse(video);
+    }
+
+    public PageResponse<VideoResponse> getVideosByUser(final String userId, Pageable pageable) {
+
+        var videos = videoRepository.findVideosByUserId(userId, pageable);
+        var total = videoRepository.countVideosByUserId(userId);
+
+        var content = videos.stream()
+                .map(videoMapper::toResponse)
+                .toList();
+
+        var totalPages = (long) Math.ceil((double) total / pageable.getPageSize());
+
+        return PageResponse.<VideoResponse>builder()
+                .totalElements(total)
+                .totalPages(totalPages)
+                .content(content)
+                .build();
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public VideoUploadResponse processUploadRawVideo(
@@ -46,7 +77,7 @@ public class VideoService {
         var folder = "raw-videos/" + userId;
         var contentType = StringUtils.defaultIfBlank(file.getContentType(), "video/mp4");
 
-        var document = VideoDocument.builder()
+        var document = Video.builder()
                 .userId(userId)
                 .title(StringUtils.defaultString(title))
                 .description(StringUtils.defaultString(description))
@@ -57,15 +88,15 @@ public class VideoService {
                 .status(UploadProcess.CREATED)
                 .build();
 
-        var saved = videoRepository.save(document);
-
         try {
             s3Client.uploadFile(folder, fileName, file.getInputStream(), contentType, file.getSize());
         } catch (Exception e) {
-            saved.setStatus(UploadProcess.FAILED);
-            videoRepository.save(saved);
+            document.setStatus(UploadProcess.FAILED);
+            videoRepository.save(document);
             throw new RuntimeException("Upload failed", e);
         }
+
+        var saved = videoRepository.save(document);
 
         publisher.publishEvent(OnUploadVideoEvent.builder()
                 .videoId(saved.getId())
@@ -79,7 +110,7 @@ public class VideoService {
 
     public void processHlsConversion(final String videoId) {
 
-        var video = videoRepository.findById(new ObjectId(videoId))
+        var video = videoRepository.findById((videoId))
                 .orElseThrow(() -> new IllegalStateException("Video not found: " + videoId));
 
         if (video.getStatus() == UploadProcess.DONE) {
@@ -142,5 +173,79 @@ public class VideoService {
         } finally {
             FileSystemUtils.deleteRecursively(tempDir.toFile());
         }
+    }
+
+    public MultipartInitResponse initMultipartUpload(
+            final String userId,
+            final String fileName,
+            final String contentType) {
+
+        var safeFileName = FileUtils.generateSafeFileName(fileName);
+
+        var key = "raw-videos/" + userId + "/" + safeFileName;
+
+        var uploadId = s3Client.createMultipartUpload(key, contentType);
+
+        return MultipartInitResponse.builder()
+                .key(key)
+                .uploadId(uploadId)
+                .build();
+    }
+
+    public MultipartUploadUrlResponse getUploadPartUrl(
+            final String key,
+            final String uploadId,
+            final int partNumber) {
+
+        var url = s3Client.generatePresignedUploadPartUrl(key, uploadId, partNumber);
+
+        return MultipartUploadUrlResponse.builder()
+                .url(url)
+                .build();
+    }
+
+    @Transactional
+    public VideoUploadResponse completeMultipartUpload(
+            final String userId,
+            final CompleteMultipartRequest request) {
+
+        var parts = request.getParts().stream()
+                .map(p -> CompletedPart.builder()
+                        .partNumber(p.getPartNumber())
+                        .eTag(p.getEtag())
+                        .build())
+                .toList();
+
+        s3Client.completeMultipartUpload(
+                request.getKey(),
+                request.getUploadId(),
+                parts
+        );
+
+        var key = request.getKey();
+        var folder = key.substring(0, key.lastIndexOf("/"));
+        var fileName = Path.of(key).getFileName().toString();
+
+        var document = Video.builder()
+                .userId(userId)
+                .title(StringUtils.defaultString(request.getTitle()))
+                .description(StringUtils.defaultString(request.getDescription()))
+                .folder(folder)
+                .fileName(fileName)
+                .contentType(request.getContentType())
+                .fileSize(request.getSize())
+                .status(UploadProcess.CREATED)
+                .build();
+
+        var saved = videoRepository.save(document);
+
+        publisher.publishEvent(OnUploadVideoEvent.builder()
+                .videoId(saved.getId())
+                .build());
+
+        return VideoUploadResponse.builder()
+                .videoId(saved.getId())
+                .status(saved.getStatus())
+                .build();
     }
 }
