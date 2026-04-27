@@ -23,11 +23,9 @@ public class FFMpegService {
     public void runFfmpegMultiBitrate(Path input, Path outputDir, double duration, String videoId)
             throws IOException, InterruptedException {
 
-        Path master = outputDir.resolve("master.m3u8");
+        var process = getProcess(input, outputDir);
 
-        Process process = getProcess(input, outputDir);
-
-        try (BufferedReader reader = new BufferedReader(
+        try (var reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()))) {
 
             String line;
@@ -86,8 +84,32 @@ public class FFMpegService {
         return pb.start();
     }
 
-    public double getVideoDuration(Path file) throws IOException, InterruptedException {
+    public Path generateThumbnail(final Path input, final Path outputDir) throws IOException, InterruptedException {
+
+        Path thumbnail = outputDir.resolve("thumbnail.jpg");
+
         ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-i", input.toString(),
+                "-ss", "00:00:01.000",
+                "-vframes", "1",
+                "-q:v", "2",
+                thumbnail.toString()
+        );
+
+        pb.redirectErrorStream(true);
+        Process p = pb.start();
+
+        int exit = p.waitFor();
+        if (exit != 0) {
+            throw new RuntimeException("Generate thumbnail failed");
+        }
+
+        return thumbnail;
+    }
+
+    public double getVideoDuration(Path file) throws IOException, InterruptedException {
+        var pb = new ProcessBuilder(
                 "ffprobe",
                 "-v", "error",
                 "-show_entries", "format=duration",
@@ -95,12 +117,11 @@ public class FFMpegService {
                 file.toString());
 
         pb.redirectErrorStream(true);
-        Process p = pb.start();
+        var p = pb.start();
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(p.getInputStream()))) {
+        try (var reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
 
-            String line = reader.readLine();
+            var line = reader.readLine();
             p.waitFor();
             return Double.parseDouble(line);
         }
@@ -108,28 +129,28 @@ public class FFMpegService {
 
     private double parseTime(String line) {
         int idx = line.indexOf("time=");
-        if (idx == -1)
+        if (idx == -1) {
             return 0;
+        }
 
-        String time = line.substring(idx + 5, idx + 16);
-
-        String[] parts = time.split(":");
+        var time = line.substring(idx + 5, idx + 16);
+        var parts = time.split(":");
         return Integer.parseInt(parts[0]) * 3600 +
                 Integer.parseInt(parts[1]) * 60 +
                 Double.parseDouble(parts[2]);
     }
 
     public void uploadFolder(Path folder, String s3Folder) throws IOException {
-        try (Stream<Path> stream = Files.walk(folder)) {
+        try (var stream = Files.walk(folder)) {
             stream.filter(Files::isRegularFile).forEach(file -> {
 
-                String name = file.getFileName().toString();
-                String contentType = name.endsWith(".m3u8")
+                var name = file.getFileName().toString();
+                var contentType = name.endsWith(".m3u8")
                         ? "application/x-mpegURL"
                         : "video/MP2T";
 
-                try (InputStream is = Files.newInputStream(file)) {
-                    s3Client.uploadFile(s3Folder, name, is, contentType, Files.size(file));
+                try (var inputStream = Files.newInputStream(file)) {
+                    s3Client.uploadFile(s3Folder, name, inputStream, contentType, Files.size(file));
                 } catch (Exception e) {
                     throw new RuntimeException("Upload failed: " + name, e);
                 }

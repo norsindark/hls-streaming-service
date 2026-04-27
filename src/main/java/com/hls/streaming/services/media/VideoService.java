@@ -110,10 +110,23 @@ public class VideoService {
 
             var hlsFolder = "hls-videos/" + video.getUserId() + "/" + video.getId();
 
+            var master = outputDir.resolve("master.m3u8");
             ffMpegService.uploadFolder(outputDir, hlsFolder);
 
             video.setStatus(UploadProcess.DONE);
-            video.setHlsUrl(hlsFolder + "/master.m3u8");
+            video.setHlsUrl(hlsFolder + "/" + master.getFileName());
+
+            // thumbnail
+            var thumbnailPath = ffMpegService.generateThumbnail(rawVideoPath, tempDir);
+
+            var thumbnailFolder = "thumbnails/" + video.getUserId();
+            var thumbnailName = video.getId() + ".jpg";
+
+            try (var is = Files.newInputStream(thumbnailPath)) {
+                s3Client.uploadFile(thumbnailFolder, thumbnailName, is, "image/jpeg", Files.size(thumbnailPath));
+            }
+
+            video.setThumbnailUrl(thumbnailFolder + "/" + thumbnailName);
 
             videoRepository.save(video);
 

@@ -2,7 +2,6 @@ package com.hls.streaming.dtos.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -23,12 +22,9 @@ public class UserLiteResponse {
 
     private String avatar;
 
-    @Builder.Default
-    private boolean isActive = true;
+    private boolean isActive;
 
-    @Builder.Default
-    private boolean isVerified = false;
+    private boolean isVerified;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean isAdmin;
 }
