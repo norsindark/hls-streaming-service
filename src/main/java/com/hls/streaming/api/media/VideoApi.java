@@ -35,12 +35,14 @@ public interface VideoApi {
             @RequestPart(value = "description", required = false) String description);
 
     @Operation(summary = "Init multipart upload")
+    @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
     @PostMapping("/api/v1/videos/multipart/init")
     MultipartInitResponse initMultipartUpload(
             @RequestParam String fileName,
             @RequestParam String contentType);
 
     @Operation(summary = "Get presigned url for upload part")
+    @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
     @GetMapping("/api/v1/videos/multipart/url")
     MultipartUploadUrlResponse getUploadPartUrl(
             @RequestParam String key,
@@ -48,6 +50,7 @@ public interface VideoApi {
             @RequestParam int partNumber);
 
     @Operation(summary = "Complete multipart upload")
+    @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
     @PostMapping("/api/v1/videos/multipart/complete")
     VideoUploadResponse completeMultipartUpload(
             @RequestBody CompleteMultipartRequest request);

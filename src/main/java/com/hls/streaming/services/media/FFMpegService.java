@@ -1,17 +1,20 @@
 package com.hls.streaming.services.media;
 
+import com.hls.streaming.dtos.media.VideoProgressEvent;
+import com.hls.streaming.enums.UploadProcess;
 import com.hls.streaming.storage.S3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Stream;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -19,6 +22,7 @@ import java.util.stream.Stream;
 public class FFMpegService {
 
     private final S3Client s3Client;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public void runFfmpegMultiBitrate(Path input, Path outputDir, double duration, String videoId)
             throws IOException, InterruptedException {
@@ -32,10 +36,19 @@ public class FFMpegService {
             while ((line = reader.readLine()) != null) {
 
                 if (line.contains("time=")) {
-                    double current = parseTime(line);
-                    int percent = (int) ((current / duration) * 100);
+                    var current = parseTime(line);
+                    var percent = (int) ((current / duration) * 100);
 
                     log.info("[FFMPEG] videoId={} progress={}%", videoId, percent);
+
+                    messagingTemplate.convertAndSend(
+                            "/topic/video-progress/" + videoId,
+                            VideoProgressEvent.builder()
+                                    .videoId(videoId)
+                                    .status(UploadProcess.PROCESSING)
+                                    .percent(percent)
+                                    .build()
+                    );
                 }
             }
         }
@@ -44,10 +57,19 @@ public class FFMpegService {
         if (exitCode != 0) {
             throw new RuntimeException("FFmpeg failed, exitCode=" + exitCode);
         }
+
+        messagingTemplate.convertAndSend(
+                "/topic/video-progress/" + videoId,
+                VideoProgressEvent.builder()
+                        .videoId(videoId)
+                        .status(UploadProcess.DONE)
+                        .percent(100)
+                        .build()
+        );
     }
 
     public static Process getProcess(Path input, Path outputDir) throws IOException {
-        var pb = new ProcessBuilder(
+        var command = List.of(
                 "ffmpeg",
                 "-i", input.toString(),
 
@@ -74,21 +96,19 @@ public class FFMpegService {
 
                 "-var_stream_map", "v:0,a:0 v:1,a:1 v:2,a:2",
                 "-master_pl_name", "master.m3u8",
+                "-hls_segment_filename", outputDir.resolve("v%v_segment_%03d.ts").toString(),
+                outputDir.resolve("v%v.m3u8").toString()
+        );
 
-                "-hls_segment_filename",
-                outputDir.resolve("v%v_segment_%03d.ts").toString(),
-
-                outputDir.resolve("v%v.m3u8").toString());
-
+        var pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         return pb.start();
     }
 
     public Path generateThumbnail(final Path input, final Path outputDir) throws IOException, InterruptedException {
+        var thumbnail = outputDir.resolve("thumbnail.jpg");
 
-        Path thumbnail = outputDir.resolve("thumbnail.jpg");
-
-        ProcessBuilder pb = new ProcessBuilder(
+        var command = List.of(
                 "ffmpeg",
                 "-i", input.toString(),
                 "-ss", "00:00:01.000",
@@ -97,8 +117,9 @@ public class FFMpegService {
                 thumbnail.toString()
         );
 
+        var pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
-        Process p = pb.start();
+        var p = pb.start();
 
         int exit = p.waitFor();
         if (exit != 0) {
@@ -109,23 +130,23 @@ public class FFMpegService {
     }
 
     public double getVideoDuration(Path file) throws IOException, InterruptedException {
-
-        var pb = new ProcessBuilder(
+        var command = List.of(
                 "ffprobe",
                 "-v", "error",
                 "-show_entries", "format=duration",
                 "-of", "default=noprint_wrappers=1:nokey=1",
-                file.toString());
+                file.toString()
+        );
 
+        var pb = new ProcessBuilder(command);
         pb.redirectErrorStream(true);
         var p = pb.start();
 
         try (var reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-
             var line = reader.readLine();
             p.waitFor();
 
-            if (line == null || line.isBlank()) {
+            if (StringUtils.isBlank(line)) {
                 throw new IllegalStateException("Cannot read duration");
             }
 
