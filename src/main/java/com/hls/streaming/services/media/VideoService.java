@@ -5,11 +5,11 @@ import com.hls.streaming.dtos.PageResponse;
 import com.hls.streaming.dtos.events.OnUploadVideoEvent;
 import com.hls.streaming.dtos.media.*;
 import com.hls.streaming.enums.UploadProcess;
-import com.hls.streaming.features.mapper.VideoMapper;
+import com.hls.streaming.features.mapper.video.VideoMapper;
+import com.hls.streaming.features.mapper.video.VideoMapperFacade;
 import com.hls.streaming.repositories.media.VideoRepository;
 import com.hls.streaming.storage.S3Client;
 import com.hls.streaming.utils.FileUtils;
-import com.hls.streaming.utils.MediaUrlUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,13 +35,13 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final S3Client s3Client;
     private final ApplicationEventPublisher publisher;
-    private final VideoMapper videoMapper;
+    private final VideoMapperFacade videoMapperFacade;
 
     public VideoResponse getVideoById(final String videoId) {
 
         var video = videoRepository.findVideoByIdAndStatus(videoId, UploadProcess.DONE)
                 .orElseThrow(() -> new IllegalStateException("Video not found or not ready"));
-        return videoMapper.toResponse(video);
+        return videoMapperFacade.toResponse(video);
     }
 
     public PageResponse<VideoResponse> getVideosByUser(final String userId, Pageable pageable) {
@@ -50,7 +50,7 @@ public class VideoService {
         var total = videoRepository.countVideosByUserId(userId);
 
         var content = videos.stream()
-                .map(videoMapper::toResponse)
+                .map(videoMapperFacade::toResponse)
                 .toList();
 
         var totalPages = (long) Math.ceil((double) total / pageable.getPageSize());
@@ -73,6 +73,8 @@ public class VideoService {
         if (Objects.isNull(file) || file.isEmpty() || StringUtils.isBlank(fileName)) {
             throw new IllegalArgumentException("Invalid file");
         }
+
+        log.debug("File name: {}", fileName);
 
         var folder = "raw-videos/" + userId;
         var contentType = StringUtils.defaultIfBlank(file.getContentType(), "video/mp4");
@@ -131,6 +133,7 @@ public class VideoService {
             s3Client.downloadFile(video.getFolder() + "/" + video.getFileName(), rawVideoPath);
 
             var duration = ffMpegService.getVideoDuration(rawVideoPath);
+            video.setDuration(duration);
 
             var outputDir = tempDir.resolve("hls_output");
             Files.createDirectories(outputDir);

@@ -22,5 +22,6 @@ public class VideoResponse {
     private String thumbnailUrl;
     private String status;
     private Long fileSize;
+    private Integer duration;
     private Instant createdAt;
 }

@@ -39,8 +39,13 @@ public class MinioS3ClientImpl implements S3Client {
     }
 
     @Override
-    public String uploadFile(final String folder, final String fileName,
-            final InputStream inputStream, final String contentType, final long size) {
+    public String uploadFile(
+            final String folder,
+            final String fileName,
+            final InputStream inputStream,
+            final String contentType,
+            final long size) {
+
         if (StringUtils.isBlank(folder) || StringUtils.isBlank(fileName) || Objects.isNull(inputStream)) {
             throw new IllegalArgumentException();
         }
@@ -49,8 +54,7 @@ public class MinioS3ClientImpl implements S3Client {
 
         var requestBuilder = PutObjectRequest.builder()
                 .bucket(storageConfig.getBucketName())
-                .key(key)
-                .acl(ObjectCannedACL.PUBLIC_READ);
+                .key(key);
 
         if (StringUtils.isNotBlank(contentType)) {
             requestBuilder.contentType(contentType);

@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -41,11 +42,25 @@ public class FileUtils {
         }
 
         var extension = getFileExtension(originalFilename);
+        var baseNameIndex = originalFilename.lastIndexOf(".");
+
+        var baseName = originalFilename;
+        if (baseNameIndex != -1) {
+            baseName = originalFilename.substring(0, baseNameIndex);
+        }
+
+        var normalizedString = Normalizer.normalize(baseName, Normalizer.Form.NFD);
+        var asciiString = normalizedString.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        var cleanBaseName = asciiString.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+
+        if (StringUtils.isBlank(cleanBaseName)) {
+            cleanBaseName = "video";
+        }
 
         var timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        var random = UUID.randomUUID().toString().substring(0, 4);
+        var randomString = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 4);
 
-        return timestamp + random + "." + extension;
+        return cleanBaseName + timestamp + randomString + "." + extension;
     }
 
     public static String getFileExtension(final String fileName) {

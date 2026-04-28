@@ -59,6 +59,9 @@ public class Video implements Serializable {
     @Field("thumbnail_url")
     private String thumbnailUrl;
 
+    @Field("duration")
+    private Double duration;
+
     @Builder.Default
     @Field("is_processed")
     private UploadProcess status = UploadProcess.CREATED;

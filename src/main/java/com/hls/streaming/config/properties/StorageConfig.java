@@ -16,5 +16,6 @@ public class StorageConfig {
     private String endpointUrl;
     private String fullEndpointUrl;
     private String bucketName;
+    private String cdnBase;
 
 }
