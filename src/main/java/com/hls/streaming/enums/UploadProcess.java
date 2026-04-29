@@ -1,5 +1,5 @@
 package com.hls.streaming.enums;
 
 public enum UploadProcess {
-    CREATED, PROCESSING, DONE, FAILED
+    CREATED, UPLOADING, MERGING, PROCESSING, UPLOADING_HLS, DONE, FAILED
 }

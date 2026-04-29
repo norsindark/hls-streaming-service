@@ -17,5 +17,6 @@ public class StorageConfig {
     private String fullEndpointUrl;
     private String bucketName;
     private String cdnBase;
+    private String rawVideoPrefix;
 
 }

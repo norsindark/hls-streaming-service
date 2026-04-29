@@ -17,19 +17,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Tag(name = "User API", description = "User authentication and management APIs")
 public interface UserLoginApi {
 
-    @Operation(summary = "Register a new user",
-            description = "Create a new user account and return official Access and Refresh tokens")
+    @Operation(summary = "Register a new user")
     @PostMapping("/api/v1/public/register")
     @ResponseStatus(HttpStatus.CREATED)
     UserAccessResponse register(@Valid @RequestBody RegisterUserRequest request);
 
-    @Operation(summary = "Step 1: Identify user",
-            description = "Check if email or username exists and return a temporary verification token")
+    @Operation(summary = "Identify user")
     @PostMapping("/api/v1/public/users/identify")
     @ResponseStatus(HttpStatus.OK)
     UserAccessResponse identifyUser(@Valid @RequestBody IdentifyUserRequest request);
 
-    @Operation(summary = "Step 2: Verify password", description = "Verify password and return official Access and Refresh tokens")
+    @Operation(summary = "Verify password")
     @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
     @PostMapping("/api/v1/users/verify-password")
     @ResponseStatus(HttpStatus.OK)

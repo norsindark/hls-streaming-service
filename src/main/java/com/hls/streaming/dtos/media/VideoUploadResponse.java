@@ -1,6 +1,6 @@
 package com.hls.streaming.dtos.media;
 
-import com.hls.streaming.enums.UploadProcess;
+import com.hls.streaming.enums.VideoStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VideoUploadResponse {
     private String videoId;
-    private UploadProcess status;
+    private VideoStatus status;
 }

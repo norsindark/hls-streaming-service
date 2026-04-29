@@ -8,7 +8,8 @@ import com.hls.streaming.dtos.user.RegisterUserRequest;
 import com.hls.streaming.dtos.user.VerifyPasswordRequest;
 import com.hls.streaming.exception.BadRequestException;
 import com.hls.streaming.security.utils.SecurityUtils;
-import com.hls.streaming.services.user.UserService;
+import com.hls.streaming.services.user.command.UserAuthService;
+import com.hls.streaming.services.user.command.UserRegisterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,24 +19,28 @@ import static com.hls.streaming.constant.ErrorConfigConstants.TOKEN_IS_MISSING;
 @RequiredArgsConstructor
 public class UserLoginController implements UserLoginApi {
 
-    private final UserService userService;
+    private final UserRegisterService registerService;
+    private final UserAuthService authService;
     private final ErrorCodeConfig errorCodeConfig;
 
     @Override
     public UserAccessResponse register(final RegisterUserRequest request) {
-        return userService.register(request);
+        return registerService.register(request);
     }
 
     @Override
     public UserAccessResponse identifyUser(final IdentifyUserRequest request) {
-        return userService.identifyUser(request);
+        return authService.identify(request);
     }
 
     @Override
     public UserAccessResponse verifyPassword(final VerifyPasswordRequest request) {
-        final var tokenClaim = SecurityUtils.getTokenClaimFromSecurityContext()
-                .orElseThrow(() -> new BadRequestException(errorCodeConfig.getMessage(TOKEN_IS_MISSING)));
+
+        var tokenClaim = SecurityUtils.getTokenClaimFromSecurityContext()
+                .orElseThrow(() -> new BadRequestException(
+                        errorCodeConfig.getMessage(TOKEN_IS_MISSING)));
+
         request.setUserId(tokenClaim.getUserId());
-        return userService.verifyPassword(request);
+        return authService.verifyPassword(request);
     }
 }
