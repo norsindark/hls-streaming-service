@@ -51,7 +51,8 @@ public class FileUtils {
 
         var normalizedString = Normalizer.normalize(baseName, Normalizer.Form.NFD);
         var asciiString = normalizedString.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        var cleanBaseName = asciiString.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+        var cleanAsciiString = asciiString.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+        var cleanBaseName = StringUtils.substring(cleanAsciiString, 0, 50);
 
         if (StringUtils.isBlank(cleanBaseName)) {
             cleanBaseName = "video";

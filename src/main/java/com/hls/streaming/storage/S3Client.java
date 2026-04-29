@@ -22,4 +22,6 @@ public interface S3Client {
     void deleteFolder(String folderPrefix);
 
     void downloadFile(String key, Path destination);
+
+    void abortMultipartUpload(String key, String uploadId);
 }

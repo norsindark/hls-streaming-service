@@ -1,6 +1,7 @@
 package com.hls.streaming.documents.media;
 
 import com.hls.streaming.enums.UploadProcess;
+import com.hls.streaming.enums.VideoStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -35,6 +36,10 @@ public class Video implements Serializable {
     @Field("user_id")
     private String userId;
 
+    @Indexed
+    @Field("process_id")
+    private String processId;
+
     @Field("title")
     private String title;
 
@@ -63,8 +68,8 @@ public class Video implements Serializable {
     private Double duration;
 
     @Builder.Default
-    @Field("is_processed")
-    private UploadProcess status = UploadProcess.CREATED;
+    @Field("status")
+    private VideoStatus status = VideoStatus.CREATED;
 
     @CreatedDate
     @Field("created_at")

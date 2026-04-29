@@ -199,4 +199,20 @@ public class MinioS3ClientImpl implements S3Client {
 
         awsS3Client.getObject(getObjectRequest, destination);
     }
+
+    @Override
+    public void abortMultipartUpload(final String key, final String uploadId) {
+
+        if (StringUtils.isBlank(key) || Objects.isNull(uploadId)) {
+            throw new IllegalArgumentException();
+        }
+
+        var request = AbortMultipartUploadRequest.builder()
+                .bucket(storageConfig.getBucketName())
+                .key(key)
+                .uploadId(uploadId)
+                .build();
+
+        awsS3Client.abortMultipartUpload(request);
+    }
 }

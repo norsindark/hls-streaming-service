@@ -1,7 +1,7 @@
 package com.hls.streaming.features.rabbitmq.consumer;
 
 import com.hls.streaming.dtos.events.OnUploadVideoEvent;
-import com.hls.streaming.services.media.VideoService;
+import com.hls.streaming.services.media.processing.VideoProcessingOrchestrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import java.util.Objects;
 @ConditionalOnProperty(value = "io.hls.app.listener.enabled", havingValue = "true")
 public class VideoRabbitConsumer {
 
-    private final VideoService videoService;
+    private final VideoProcessingOrchestrator videoProcessingOrchestrator;
 
     @RabbitListener(queues = "${io.hls.rabbitmq.ffmpeg.queue.name}",
             concurrency = "${io.hls.rabbitmq.ffmpeg.queue.concurrency:1-2}")
@@ -28,7 +28,7 @@ public class VideoRabbitConsumer {
 
             if (StringUtils.isNotBlank(event.getVideoId())) {
                 try {
-                    videoService.processHlsConversion(videoId);
+                    videoProcessingOrchestrator.process(videoId);
                     log.info("Finished processing videoId = {}", videoId);
                 } catch (Exception e) {
                     log.error("FFMpeg processing failed for videoId = {}", videoId, e);

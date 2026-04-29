@@ -14,7 +14,7 @@ public class VideoMapperFacade {
     private final VideoMapper mapper;
     private final S3Client s3Client;
 
-    public VideoResponse toResponse(Video doc) {
+    public VideoResponse toResponse(final Video doc) {
         var res = mapper.toResponse(doc);
 
         res.setHlsUrl(s3Client.generatePresignedUrl(doc.getHlsUrl(), HttpMethod.GET));

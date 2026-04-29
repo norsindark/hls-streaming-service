@@ -5,7 +5,7 @@ import com.hls.streaming.config.error.ErrorCodeConfig;
 import com.hls.streaming.dtos.user.UserLiteResponse;
 import com.hls.streaming.exception.BadRequestException;
 import com.hls.streaming.security.utils.SecurityUtils;
-import com.hls.streaming.services.user.UserService;
+import com.hls.streaming.services.user.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,12 +16,15 @@ import static com.hls.streaming.constant.ErrorConfigConstants.TOKEN_IS_MISSING;
 public class UserProfileController implements UserProfileApi {
 
     private final ErrorCodeConfig errorCodeConfig;
-    private final UserService userService;
+    private final UserQueryService queryService;
 
     @Override
     public UserLiteResponse getProfile() {
-        final var tokenClaim = SecurityUtils.getTokenClaimFromSecurityContext()
-                .orElseThrow(() -> new BadRequestException(errorCodeConfig.getMessage(TOKEN_IS_MISSING)));
-        return userService.getProfile(tokenClaim.getUserId());
+
+        var tokenClaim = SecurityUtils.getTokenClaimFromSecurityContext()
+                .orElseThrow(() -> new BadRequestException(
+                        errorCodeConfig.getMessage(TOKEN_IS_MISSING)));
+
+        return queryService.getProfile(tokenClaim.getUserId());
     }
 }
