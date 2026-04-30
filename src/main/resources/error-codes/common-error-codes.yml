@@ -55,3 +55,7 @@ errorCodes:
     message: "Identifier cannot be empty"
   - code: 1000500000
     message: "Internal Server Error"
+
+#  media error
+  - code: 1000400100
+    message: "File too large"
