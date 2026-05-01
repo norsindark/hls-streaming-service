@@ -59,3 +59,5 @@ errorCodes:
 #  media error
   - code: 1000400100
     message: "File too large"
+  - code: 1000400101
+    message: "Video Not Found"

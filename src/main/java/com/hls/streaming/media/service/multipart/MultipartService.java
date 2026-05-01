@@ -1,15 +1,16 @@
 package com.hls.streaming.media.service.multipart;
 
+import com.hls.streaming.common.constant.ErrorConfigConstants;
+import com.hls.streaming.common.exception.NotFoundException;
+import com.hls.streaming.infrastructure.config.error.ErrorCodeConfig;
 import com.hls.streaming.infrastructure.config.properties.StorageConfig;
+import com.hls.streaming.infrastructure.storage.S3Client;
 import com.hls.streaming.media.domain.document.Video;
-import com.hls.streaming.media.event.OnUploadVideoEvent;
-import com.hls.streaming.media.dto.CompleteMultipartRequest;
-import com.hls.streaming.media.dto.MultipartInitResponse;
-import com.hls.streaming.media.dto.MultipartUploadUrlResponse;
-import com.hls.streaming.media.dto.VideoUploadResponse;
 import com.hls.streaming.media.domain.enums.VideoStatus;
 import com.hls.streaming.media.domain.repository.VideoRepository;
-import com.hls.streaming.infrastructure.storage.S3Client;
+import com.hls.streaming.media.dto.*;
+import com.hls.streaming.media.event.OnUploadVideoEvent;
+import com.hls.streaming.media.service.processing.ffmpeg.FfmpegProcessRegistry;
 import com.hls.streaming.media.utils.MediaUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -27,14 +28,15 @@ public class MultipartService {
     private final S3Client s3Client;
     private final StorageConfig storageConfig;
     private final VideoRepository videoRepository;
+    private final FfmpegProcessRegistry processRegistry;
     private final ApplicationEventPublisher publisher;
+    private final ErrorCodeConfig errorCodeConfig;
 
     private static final long MAX_FILE_SIZE = 2L * 1024 * 1024 * 1024;
 
     public MultipartInitResponse initMultipartUpload(final String userId, final String fileName, final String contentType) {
 
-        var safeFileName = MediaUtils.generateSafeFileName(fileName);
-        var key = storageConfig.getRawVideoPrefix() + userId + "/" + safeFileName;
+        var key = MediaUtils.generateKey(storageConfig.getRawVideoPrefix(), userId, fileName);
         var uploadId = s3Client.createMultipartUpload(key, contentType);
 
         return MultipartInitResponse.builder()
@@ -76,6 +78,7 @@ public class MultipartService {
                 .userId(userId)
                 .title(StringUtils.defaultString(request.getTitle()))
                 .description(StringUtils.defaultString(request.getDescription()))
+                .objectKey(key)
                 .folder(folder)
                 .fileName(fileName)
                 .contentType(request.getContentType())
@@ -93,8 +96,14 @@ public class MultipartService {
                 .build();
     }
 
-    public void abortMultipartUpload(String key, String uploadId) {
-        s3Client.abortMultipartUpload(key, uploadId);
+    @Transactional(rollbackFor = Exception.class)
+    public void abortMultipartUpload(final AbortUploadVideoRequest request) {
+
+        var video = videoRepository.findVideoByObjectKeyAndUserId(request.getKey(), request.getUserId())
+                .orElseThrow(() -> new NotFoundException(errorCodeConfig.getMessage(ErrorConfigConstants.VIDEO_NOT_FOUND)));
+
+        s3Client.abortMultipartUpload(video.getObjectKey(), request.getUploadId());
+        processRegistry.cancel(video.getObjectKey());
     }
 
     private void validate(String userId, CompleteMultipartRequest request) {

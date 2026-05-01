@@ -20,5 +20,11 @@ public interface VideoRepository extends MongoRepository<Video, String> {
     long countVideosByUserId(final String userId);
 
     @Query("{ '_id': ?0, 'status': ?1 }")
-    Optional<Video> findVideoByIdAndStatus(String id, VideoStatus status);
+    Optional<Video> findVideoByIdAndStatus(final String id, final VideoStatus status);
+
+    @Query("{  '_id': ?0, 'user_id': ?1, 'status: ?2 }'")
+    void updateStatusByVideoIdAndUserId(final String videoId, final String userId, final VideoStatus videoStatus);
+
+    @Query("{ 'object_key': ?0, 'user_id': ?1 }")
+    Optional<Video> findVideoByObjectKeyAndUserId(final String key, final String userId);
 }

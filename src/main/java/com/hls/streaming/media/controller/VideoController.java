@@ -67,7 +67,9 @@ public class VideoController implements VideoApi {
     }
 
     @Override
-    public void abortMultipartUpload(final String key, final String uploadId) {
-        multipartService.abortMultipartUpload(key, uploadId);
+    public void abortMultipartUpload(final AbortUploadVideoRequest request) {
+        var userId = SecurityUtils.getUserIdFromToken(errorCodeConfig);
+        request.setUserId(userId);
+        multipartService.abortMultipartUpload(request);
     }
 }

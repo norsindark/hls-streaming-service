@@ -45,6 +45,10 @@ public class Video implements Serializable {
     @Field("description")
     private String description;
 
+    @Indexed
+    @Field("object_key")
+    private String objectKey;
+
     @Field("folder")
     private String folder;
 

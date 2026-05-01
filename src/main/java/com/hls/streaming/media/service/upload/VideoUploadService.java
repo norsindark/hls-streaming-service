@@ -7,6 +7,7 @@ import com.hls.streaming.media.dto.VideoUploadResponse;
 import com.hls.streaming.media.domain.enums.VideoStatus;
 import com.hls.streaming.media.domain.repository.VideoRepository;
 import com.hls.streaming.infrastructure.storage.S3Client;
+import com.hls.streaming.media.utils.MediaUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,12 +39,14 @@ public class VideoUploadService {
         }
 
         var folder = storageConfig.getRawVideoPrefix() + userId;
+        var key = MediaUtils.generateKey(storageConfig.getRawVideoPrefix(), userId, fileName);
         var contentType = StringUtils.defaultIfBlank(file.getContentType(), "video/mp4");
 
         var video = Video.builder()
                 .userId(userId)
                 .title(StringUtils.defaultString(title))
                 .description(StringUtils.defaultString(description))
+                .objectKey(key)
                 .folder(folder)
                 .fileName(fileName)
                 .contentType(contentType)

@@ -1,8 +1,8 @@
-package com.hls.streaming.features.mapper.video;
+package com.hls.streaming.media.mapper;
 
-import com.hls.streaming.documents.media.Video;
-import com.hls.streaming.dtos.media.VideoResponse;
-import com.hls.streaming.storage.S3Client;
+import com.hls.streaming.media.domain.document.Video;
+import com.hls.streaming.media.dto.VideoResponse;
+import com.hls.streaming.infrastructure.storage.S3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;

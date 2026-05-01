@@ -44,6 +44,7 @@ public class ErrorConfigConstants {
 
     // -------- media error --------
     public static final long FILE_TOO_LARGE = 1000400100L;
+    public static final long VIDEO_NOT_FOUND = 1000400101L;
 
     //----------------------server error----------------------
     public static final long INTERNAL_SERVER_ERROR = 1000500000L;
