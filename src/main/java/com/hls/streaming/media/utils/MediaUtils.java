@@ -36,6 +36,37 @@ public class MediaUtils {
         }
     }
 
+    public static String generateKey(final String rawVideoPrefix,  final String userId, final String originalFilename) {
+        if (StringUtils.isBlank(rawVideoPrefix) || StringUtils.isBlank(userId) || StringUtils.isBlank(originalFilename)) {
+            throw new IllegalArgumentException();
+        }
+        var safeFileName = generateSafeFileName(originalFilename);
+        return rawVideoPrefix + userId + "/" + safeFileName;
+    }
+
+    public static String extractUserIdFromKey(final String key, final String rawVideoPrefix) {
+        if (StringUtils.isBlank(key) || StringUtils.isBlank(rawVideoPrefix)) {
+            throw new IllegalArgumentException();
+        }
+
+        var prefix = rawVideoPrefix;
+        if (!rawVideoPrefix.endsWith("/")) {
+            prefix += "/";
+        }
+
+        if (!key.startsWith(prefix)) {
+            throw new IllegalArgumentException("Key does not start with the expected prefix");
+        }
+
+        var remainingPath = key.substring(prefix.length());
+        var parts = remainingPath.split("/");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Key does not contain userId and file name");
+        }
+
+        return parts[0];
+    }
+
     public static String generateSafeFileName(final String originalFilename) {
         if (StringUtils.isBlank(originalFilename)) {
             throw new IllegalArgumentException();

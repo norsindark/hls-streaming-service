@@ -5,6 +5,7 @@ import com.hls.streaming.media.dto.*;
 import com.hls.streaming.security.constants.SecurityConstant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,9 +66,7 @@ public interface VideoApi {
 
     @Operation(summary = "Abort multipart upload")
     @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
-    @DeleteMapping("/api/v1/videos/multipart/abort")
+    @PostMapping("/api/v1/videos/multipart/abort")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void abortMultipartUpload(
-            @RequestParam String key,
-            @RequestParam String uploadId);
+    void abortMultipartUpload( @Valid @RequestBody AbortUploadVideoRequest request);
 }

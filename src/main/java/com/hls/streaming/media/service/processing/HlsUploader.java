@@ -1,7 +1,7 @@
 package com.hls.streaming.media.service.processing;
 
-import com.hls.streaming.media.domain.document.Video;
 import com.hls.streaming.infrastructure.storage.S3Client;
+import com.hls.streaming.media.domain.document.Video;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class HlsUploader {
 
             stream.filter(Files::isRegularFile).forEach(file -> {
 
-                try (var is = Files.newInputStream(file)) {
+                try (var inputStream = Files.newInputStream(file)) {
 
                     var name = file.getFileName().toString();
                     var contentType = name.endsWith(".m3u8")
@@ -33,7 +33,7 @@ public class HlsUploader {
                     s3Client.uploadFile(
                             s3Folder,
                             name,
-                            is,
+                            inputStream,
                             contentType,
                             Files.size(file));
 

@@ -1,7 +1,9 @@
 package com.hls.streaming.media.service.processing;
 
+import com.hls.streaming.infrastructure.config.properties.StorageConfig;
 import com.hls.streaming.media.domain.enums.VideoStatus;
 import com.hls.streaming.media.domain.repository.VideoRepository;
+import com.hls.streaming.media.utils.MediaUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class VideoProcessingOrchestrator {
     private final VideoTranscoder transcoder;
     private final HlsUploader hlsUploader;
     private final ThumbnailGenerator thumbnailGenerator;
+    private final StorageConfig storageConfig;
 
     public void process(String videoId) {
 
@@ -34,6 +37,7 @@ public class VideoProcessingOrchestrator {
 
         video.setStatus(VideoStatus.PROCESSING);
         videoRepository.save(video);
+        var key = MediaUtils.generateKey(storageConfig.getRawVideoPrefix(), video.getUserId(), video.getFileName());
 
         Path tempDir = Path.of(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
 
@@ -47,7 +51,7 @@ public class VideoProcessingOrchestrator {
 
             var outputDir = Files.createDirectories(tempDir.resolve("hls"));
 
-            transcoder.transcode(rawPath, outputDir, duration, video.getId());
+            transcoder.transcode(rawPath, outputDir, duration, video.getId(), key);
 
             var hlsUrl = hlsUploader.upload(video, outputDir);
             video.setHlsUrl(hlsUrl);

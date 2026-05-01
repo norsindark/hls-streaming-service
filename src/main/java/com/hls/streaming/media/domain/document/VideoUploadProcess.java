@@ -43,7 +43,7 @@ public class VideoUploadProcess implements Serializable {
     @Indexed
     @Field("status")
     @Builder.Default
-    private UploadProcess status = UploadProcess.CREATED;
+    private UploadProcess status = UploadProcess.INIT;
 
     @Field("step")
     @Builder.Default
@@ -67,6 +67,15 @@ public class VideoUploadProcess implements Serializable {
 
     @Field("last_success_step")
     private UploadStep lastSuccessStep;
+
+    @Field("file_name")
+    private String fileName;
+
+    @Field("content_type")
+    private String contentType;
+
+    @Field("file_size")
+    private Long fileSize;
 
     @CreatedDate
     @Field("created_at")
