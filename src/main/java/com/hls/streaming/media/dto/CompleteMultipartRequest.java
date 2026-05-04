@@ -18,8 +18,10 @@ public class CompleteMultipartRequest {
     private String contentType;
     private List<Part> parts;
 
-    @Getter
-    @Setter
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Part {
         private int partNumber;
         private String etag;

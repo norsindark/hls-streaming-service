@@ -1,0 +1,4 @@
+io:
+  hls:
+    api-security:
+      enabled: false
