@@ -1,35 +1,17 @@
 package com.hls.streaming.media.api;
 
-import com.hls.streaming.common.dtos.PageResponse;
 import com.hls.streaming.media.dto.*;
 import com.hls.streaming.security.constants.SecurityConstant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Video Api", description = "Video api")
-public interface VideoApi {
-
-    @Operation(summary = "Get video by id")
-    @GetMapping("/api/v1/public/videos/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    VideoResponse getVideoById(@PathVariable String id);
-
-    @Operation(summary = "Get my videos (from token)")
-    @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")
-    @GetMapping("/api/v1/videos/me")
-    @ResponseStatus(HttpStatus.OK)
-    PageResponse<VideoResponse> getMyVideos(Pageable pageable);
-
-    @Operation(summary = "Get videos by userId")
-    @GetMapping("/api/v1/public/videos/user/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    PageResponse<VideoResponse> getVideosByUserId(@PathVariable String userId, Pageable pageable);
+public interface VideoProcessingApi {
 
     @Operation(summary = "Upload raw video and trigger processing")
     @PreAuthorize("hasRole('" + SecurityConstant.UserRole.USER + "')")

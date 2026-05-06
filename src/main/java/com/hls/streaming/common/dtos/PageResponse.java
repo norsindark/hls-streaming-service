@@ -17,6 +17,8 @@ public class PageResponse<T> {
     private long totalElements;
     private long totalPages;
 
+    private String nextCursor;
+
     @Builder.Default
     private List<T> content = new ArrayList<>();
 }

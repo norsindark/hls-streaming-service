@@ -1,5 +1,6 @@
 package com.hls.streaming.unit.media.service;
 
+import com.hls.streaming.infrastructure.config.error.ErrorCodeConfig;
 import com.hls.streaming.media.domain.document.Video;
 import com.hls.streaming.media.domain.enums.VideoStatus;
 import com.hls.streaming.media.domain.repository.VideoRepository;
@@ -34,9 +35,12 @@ class VideoQueryServiceTest {
     @Mock
     private VideoMapperFacade videoMapperFacade;
 
+    @Mock
+    private ErrorCodeConfig errorCodeConfig;
+
     @BeforeEach
     void setUp() {
-        service = new VideoQueryService(videoRepository, videoMapperFacade);
+        service = new VideoQueryService(videoRepository, videoMapperFacade, errorCodeConfig);
     }
 
     @Test
