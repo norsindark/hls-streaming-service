@@ -29,6 +29,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    testImplementation libs.spring.security.test
+
     implementation libs.java.jwt
 
     implementation libs.commons.lang3
