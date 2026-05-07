@@ -1,12 +1,15 @@
 package com.hls.streaming.media.utils;
 
+import com.hls.streaming.common.exception.BadRequestException;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -106,5 +109,30 @@ public class MediaUtils {
         }
 
         return StringUtils.EMPTY;
+    }
+
+    public static String encodeCursor(final long createdAt, final String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new BadRequestException("Cursor id is blank");
+        }
+
+        final var raw = createdAt + "_" + id;
+
+        return Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String decodeCursor(final String cursor) {
+        if (StringUtils.isBlank(cursor)) {
+            throw new BadRequestException("Cursor is blank");
+        }
+
+        try {
+            final var decoded = Base64.getUrlDecoder().decode(cursor);
+            return new String(decoded, StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            throw new BadRequestException("Invalid cursor encoding", ex);
+        }
     }
 }

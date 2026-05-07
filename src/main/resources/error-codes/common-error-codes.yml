@@ -56,8 +56,10 @@ errorCodes:
   - code: 1000500000
     message: "Internal Server Error"
 
-#  media error
+  #  media error
   - code: 1000400100
     message: "File too large"
   - code: 1000400101
     message: "Video Not Found"
+  - code: 1000400102
+    message: "Invalid cursor format"

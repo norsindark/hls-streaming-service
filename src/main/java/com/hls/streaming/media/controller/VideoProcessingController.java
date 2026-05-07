@@ -1,42 +1,22 @@
 package com.hls.streaming.media.controller;
 
-import com.hls.streaming.common.dtos.PageResponse;
-import com.hls.streaming.media.api.VideoApi;
+import com.hls.streaming.media.api.VideoProcessingApi;
 import com.hls.streaming.media.dto.*;
 import com.hls.streaming.media.service.multipart.MultipartService;
-import com.hls.streaming.media.service.query.VideoQueryService;
 import com.hls.streaming.media.service.upload.VideoUploadService;
 import com.hls.streaming.media.utils.MediaUtils;
 import com.hls.streaming.security.context.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-public class VideoController implements VideoApi {
+public class VideoProcessingController implements VideoProcessingApi {
 
     private final VideoUploadService videoUploadService;
     private final MultipartService multipartService;
-    private final VideoQueryService videoQueryService;
     private final CurrentUserProvider currentUserProvider;
-
-    @Override
-    public VideoResponse getVideoById(String id) {
-        return videoQueryService.getVideoById(id);
-    }
-
-    @Override
-    public PageResponse<VideoResponse> getMyVideos(Pageable pageable) {
-        var userId = currentUserProvider.getUserId();
-        return videoQueryService.getVideosByUser(userId, pageable);
-    }
-
-    @Override
-    public PageResponse<VideoResponse> getVideosByUserId(String userId, Pageable pageable) {
-        return videoQueryService.getVideosByUser(userId, pageable);
-    }
 
     @Override
     public VideoUploadResponse uploadVideo(final MultipartFile file, final String title, final String description) {

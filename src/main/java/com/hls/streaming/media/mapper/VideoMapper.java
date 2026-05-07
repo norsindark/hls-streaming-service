@@ -8,8 +8,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import java.util.Objects;
-
 @Mapper(config = CentralConfig.class)
 public interface VideoMapper {
 
@@ -19,20 +17,19 @@ public interface VideoMapper {
     VideoResponse toResponse(Video doc);
 
     @AfterMapping
-    default void afterToResponse(Video doc, @MappingTarget VideoResponse response) {
-        if (Objects.nonNull(doc) && Objects.nonNull(response)) {
-            var status = doc.getStatus();
-            if (Objects.nonNull(status)) {
-                response.setStatus(status.name());
-            }
-
-            var duration = doc.getDuration();
-            if (Objects.nonNull(duration)) {
-                var roundedDuration = (int) Math.floor(duration);
-                response.setDuration(roundedDuration);
-            } else {
-                response.setDuration(0);
-            }
+    default void afterToResponse(
+            final Video doc,
+            @MappingTarget final VideoResponse.VideoResponseBuilder response) {
+        if (doc == null) {
+            return;
         }
+
+        var status = doc.getStatus();
+        if (status != null) {
+            response.status(status.name());
+        }
+
+        var duration = doc.getDuration();
+        response.duration(duration != null ? (int) Math.floor(duration) : 0);
     }
 }

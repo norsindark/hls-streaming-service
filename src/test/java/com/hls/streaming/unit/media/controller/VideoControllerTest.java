@@ -1,7 +1,8 @@
 package com.hls.streaming.unit.media.controller;
 
 import com.hls.streaming.common.dtos.PageResponse;
-import com.hls.streaming.media.controller.VideoController;
+import com.hls.streaming.media.controller.VideoProcessingController;
+import com.hls.streaming.media.controller.VideoPublicController;
 import com.hls.streaming.media.dto.*;
 import com.hls.streaming.media.service.multipart.MultipartService;
 import com.hls.streaming.media.service.query.VideoQueryService;
@@ -42,7 +43,10 @@ class VideoControllerTest {
     private MultipartFile multipartFile;
 
     @InjectMocks
-    private VideoController controller;
+    private VideoProcessingController videoProcessingController;
+
+    @InjectMocks
+    private VideoPublicController videoPublicController;
 
     @BeforeEach
     void setUp() {
@@ -60,7 +64,7 @@ class VideoControllerTest {
 
         when(videoQueryService.getVideoById(videoId)).thenReturn(expectedResponse);
 
-        VideoResponse response = controller.getVideoById(videoId);
+        VideoResponse response = videoPublicController.getVideoById(videoId);
 
         assertThat(response).isNotNull();
         assertThat(response.getVideoId()).isEqualTo(videoId);
@@ -86,7 +90,7 @@ class VideoControllerTest {
 
         when(videoQueryService.getVideosByUser(userId, pageable)).thenReturn(expectedResponse);
 
-        PageResponse<VideoResponse> response = controller.getMyVideos(pageable);
+        PageResponse<VideoResponse> response = videoPublicController.getMyVideos(pageable);
 
         assertThat(response.getTotalElements()).isEqualTo(2);
 
@@ -105,7 +109,7 @@ class VideoControllerTest {
 
         when(videoQueryService.getVideosByUser(userId, pageable)).thenReturn(expectedResponse);
 
-        PageResponse<VideoResponse> response = controller.getVideosByUserId(userId, pageable);
+        PageResponse<VideoResponse> response = videoPublicController.getVideosByUserId(userId, pageable);
 
         assertThat(response.getTotalElements()).isEqualTo(1);
 
@@ -129,7 +133,7 @@ class VideoControllerTest {
         when(videoUploadService.uploadRawVideo(eq(userId), eq(multipartFile), eq(title), eq(description), any()))
                 .thenReturn(expectedResponse);
 
-        VideoUploadResponse response = controller.uploadVideo(multipartFile, title, description);
+        VideoUploadResponse response = videoProcessingController.uploadVideo(multipartFile, title, description);
 
         assertThat(response.getVideoId()).isEqualTo("video-id-123");
 
@@ -152,7 +156,7 @@ class VideoControllerTest {
         when(multipartService.initMultipartUpload(userId, fileName, contentType))
                 .thenReturn(expectedResponse);
 
-        MultipartInitResponse response = controller.initMultipartUpload(fileName, contentType);
+        MultipartInitResponse response = videoProcessingController.initMultipartUpload(fileName, contentType);
 
         assertThat(response.getUploadId()).isEqualTo("upload-id-123");
 
@@ -172,7 +176,7 @@ class VideoControllerTest {
         when(multipartService.getUploadPartUrl(key, uploadId, partNumber))
                 .thenReturn(expectedResponse);
 
-        MultipartUploadUrlResponse response = controller.getUploadPartUrl(key, uploadId, partNumber);
+        MultipartUploadUrlResponse response = videoProcessingController.getUploadPartUrl(key, uploadId, partNumber);
 
         assertThat(response.getUrl()).contains("s3.example.com");
 
@@ -198,7 +202,7 @@ class VideoControllerTest {
         when(multipartService.completeMultipartUpload(userId, request))
                 .thenReturn(expectedResponse);
 
-        VideoUploadResponse response = controller.completeMultipartUpload(request);
+        VideoUploadResponse response = videoProcessingController.completeMultipartUpload(request);
 
         assertThat(response.getVideoId()).isEqualTo("video-id-123");
 
@@ -216,7 +220,7 @@ class VideoControllerTest {
                 .uploadId("upload-id-123")
                 .build();
 
-        controller.abortMultipartUpload(request);
+        videoProcessingController.abortMultipartUpload(request);
 
         assertThat(request.getUserId()).isEqualTo(userId);
 
