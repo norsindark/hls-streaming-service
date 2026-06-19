@@ -9,7 +9,7 @@ import com.hls.streaming.security.authentication.model.TokenClaim;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import  org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +51,7 @@ public class TokenClaimExtractor {
     public String extractToken(final HttpServletRequest request) {
 
         var tempRequestURI = request.getRequestURI();
-        if (StringUtils.isNotBlank(tempRequestURI)) {
+        if (StringUtils.hasText(tempRequestURI)) {
             tempRequestURI = request.getRequestURI().replaceFirst(servletContextPath, "");
         }
 
@@ -67,6 +67,9 @@ public class TokenClaimExtractor {
 
         var token = Optional.ofNullable(request.getHeader(SecurityConstant.AUTHORIZATION))
                 .orElseThrow(() -> new AuthorizationException(errorCodeConfig.getMessage(AUTHORIZATION_MUST)));
-        return token.replace("Apikey ", "");
+        if (StringUtils.startsWithIgnoreCase(token, SecurityConstant.BEARER + " ")) {
+            return token.substring(SecurityConstant.BEARER.length()).trim();
+        }
+        return token.replace("Apikey ", "").trim();
     }
 }

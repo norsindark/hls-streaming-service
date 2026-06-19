@@ -46,6 +46,27 @@ services:
       - minio_data:/data
     restart: unless-stopped
 
+  prometheus:
+    container_name: hls-prometheus
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # JWT is generated at runtime into ../prometheus/token and read via credentials_file so
+      # the secret is not stored in prometheus.yml or docker-compose.yml.
+      # Rotate it by calling MonitoringTokenService.rotateMonitoringToken(),
+      # then restart Prometheus.
+      - ../prometheus/token:/etc/prometheus/token:ro
+    restart: unless-stopped
+
+  grafana:
+    container_name: hls-grafana
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
 volumes:
   mongo_data:
   redis_data:
