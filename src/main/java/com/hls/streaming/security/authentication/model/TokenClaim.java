@@ -1,6 +1,8 @@
 package com.hls.streaming.security.authentication.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +23,8 @@ public class TokenClaim implements Serializable {
     private static final long serialVersionUID = -7810490836497183603L;
 
     private String userId;
+    @JsonProperty("roles")
+    @JsonAlias("privileges")
     private Set<UserRole> privileges;
     private TokenType type;
 }

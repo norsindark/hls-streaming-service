@@ -10,6 +10,7 @@ import com.hls.streaming.security.authentication.filter.JwtAuthenticationFilter;
 import com.hls.streaming.security.authentication.verifier.JwtAuthenticationVerifier;
 import com.hls.streaming.security.authorization.filter.HttpAuthorizationPermissionFilter;
 import com.hls.streaming.security.authorization.verifier.HttpAuthorizationPermissionVerifier;
+import com.hls.streaming.security.constants.SecurityConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,6 +79,10 @@ public class SecurityConfig {
                     .formLogin(AbstractHttpConfigurer::disable)
                     .httpBasic(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
+                            .requestMatchers(authorizationRuleConfig
+                                    .getManagementApis()
+                                    .toArray(String[]::new))
+                            .hasAuthority(SecurityConstant.UserRole.MONITORING)
                             .requestMatchers(authorizationRuleConfig
                                     .getSkippedAuthorization()
                                     .getSkippedApis()

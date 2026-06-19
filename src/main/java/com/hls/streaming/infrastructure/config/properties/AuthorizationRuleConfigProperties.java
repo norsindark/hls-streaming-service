@@ -6,6 +6,7 @@ import com.hls.streaming.infrastructure.security.utils.UserRoleUtils;
 import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ public class AuthorizationRuleConfigProperties {
     private List<AuthorizationRuleConfig> rules;
     private boolean authorizeAll = true;
     private String urlPrefix;
+    private Set<String> managementApis = new HashSet<>();
 
     @Getter
     @Setter

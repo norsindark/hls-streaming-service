@@ -13,7 +13,7 @@ public class UserRoleUtils {
 
     public static Set<UserRole> parseRoles(final String roles) {
         return Arrays.stream(StringUtils.tokenizeToStringArray(roles.replace("'", ""), ","))
-                .map(UserRole::valueOf)
+                .map(UserRole::of)
                 .collect(Collectors.toSet());
     }
 }
