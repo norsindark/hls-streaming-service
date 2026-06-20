@@ -5,7 +5,8 @@ import com.hls.streaming.media.service.processing.ffmpeg.FfmpegCommandFactory;
 import com.hls.streaming.media.service.processing.ffmpeg.FfmpegProcessRegistry;
 import com.hls.streaming.media.service.processing.ffmpeg.ProgressParser;
 import com.hls.streaming.media.service.processing.ffmpeg.ProgressPublisher;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,25 @@ import java.nio.file.Path;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class VideoTranscoder {
 
     private final ProgressPublisher progressPublisher;
     private final FfmpegProcessRegistry processRegistry;
+    private final MeterRegistry registry;
+    private final Timer segmentGenerationSuccessTimer;
+    private final Timer segmentGenerationFailureTimer;
+
+    public VideoTranscoder(
+            final ProgressPublisher progressPublisher,
+            final FfmpegProcessRegistry processRegistry,
+            final MeterRegistry registry) {
+
+        this.progressPublisher = progressPublisher;
+        this.processRegistry = processRegistry;
+        this.registry = registry;
+        this.segmentGenerationSuccessTimer = segmentGenerationTimer("success");
+        this.segmentGenerationFailureTimer = segmentGenerationTimer("failure");
+    }
 
     public void transcode(final Path input,
             final Path outputDir,
@@ -27,41 +42,57 @@ public class VideoTranscoder {
             final String videoId,
             final String key) throws Exception {
 
-        final Process process = FfmpegCommandFactory.create(input, outputDir);
+        final Timer.Sample sample = Timer.start(registry);
+        boolean success = false;
 
-        processRegistry.register(key, process);
+        try {
+            final Process process = FfmpegCommandFactory.create(input, outputDir);
 
-        int lastPercent = -1;
+            processRegistry.register(key, process);
 
-        try (final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            int lastPercent = -1;
 
-            String line;
-            while ((line = reader.readLine()) != null) {
+            try (final BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()))) {
 
-                if (processRegistry.isCancelled(key)) {
-                    log.warn("Transcoding cancelled: {}", videoId);
-                    throw new RuntimeException("Video aborted");
-                }
+                String line;
+                while ((line = reader.readLine()) != null) {
 
-                if (line.contains("time=")) {
-                    final int percent = ProgressParser.parse(line, duration);
+                    if (processRegistry.isCancelled(key)) {
+                        log.warn("Transcoding cancelled: {}", videoId);
+                        throw new RuntimeException("Video aborted");
+                    }
 
-                    if (percent != lastPercent) {
-                        lastPercent = percent;
-                        log.info("Transcoding video {}, {}%", videoId, percent);
-                        progressPublisher.publish(videoId, UploadProcess.PROCESSING, percent);
+                    if (line.contains("time=")) {
+                        final int percent = ProgressParser.parse(line, duration);
+
+                        if (percent != lastPercent) {
+                            lastPercent = percent;
+                            log.info("Transcoding video {}, {}%", videoId, percent);
+                            progressPublisher.publish(videoId, UploadProcess.PROCESSING, percent);
+                        }
                     }
                 }
+            } finally {
+                processRegistry.remove(key);
             }
+
+            if (process.waitFor() != 0) {
+                throw new RuntimeException("FFmpeg failed");
+            }
+
+            progressPublisher.publish(videoId, UploadProcess.DONE, 100);
+            success = true;
         } finally {
-            processRegistry.remove(key);
+            sample.stop(success ? segmentGenerationSuccessTimer : segmentGenerationFailureTimer);
         }
+    }
 
-        if (process.waitFor() != 0) {
-            throw new RuntimeException("FFmpeg failed");
-        }
-
-        progressPublisher.publish(videoId, UploadProcess.DONE, 100);
+    private Timer segmentGenerationTimer(final String outcome) {
+        return Timer.builder("hls.segment.generation")
+                .description("Latency of HLS segment and playlist generation by ffmpeg")
+                .tag("outcome", outcome)
+                .publishPercentileHistogram()
+                .register(registry);
     }
 }

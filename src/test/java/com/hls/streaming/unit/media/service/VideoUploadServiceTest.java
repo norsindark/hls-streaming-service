@@ -8,6 +8,7 @@ import com.hls.streaming.media.domain.repository.VideoRepository;
 import com.hls.streaming.media.dto.VideoUploadResponse;
 import com.hls.streaming.media.event.OnUploadVideoEvent;
 import com.hls.streaming.media.service.upload.VideoUploadService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,9 +46,12 @@ class VideoUploadServiceTest {
     @Mock
     private MultipartFile multipartFile;
 
+    @Mock
+    private MeterRegistry registry;
+
     @BeforeEach
     void setUp() {
-        service = new VideoUploadService(videoRepository, s3Client, storageConfig, eventPublisher);
+        service = new VideoUploadService(videoRepository, s3Client, storageConfig, eventPublisher, registry);
     }
 
     @Test

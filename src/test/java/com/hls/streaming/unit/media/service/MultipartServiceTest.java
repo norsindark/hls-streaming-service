@@ -13,6 +13,9 @@ import com.hls.streaming.media.event.OnUploadVideoEvent;
 import com.hls.streaming.media.service.multipart.MultipartService;
 import com.hls.streaming.media.service.processing.ffmpeg.FfmpegProcessRegistry;
 import com.hls.streaming.common.exception.NotFoundException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,9 +56,12 @@ class MultipartServiceTest {
     @Mock
     private ErrorCodeConfig errorCodeConfig;
 
+    @Mock
+    private MeterRegistry registry;
+
     @BeforeEach
     void setUp() {
-        service = new MultipartService(s3Client, storageConfig, videoRepository, processRegistry, eventPublisher, errorCodeConfig);
+        service = new MultipartService(s3Client, storageConfig, videoRepository, processRegistry, eventPublisher, errorCodeConfig,registry);
     }
 
     @Test
