@@ -1,13 +1,15 @@
 package com.hls.streaming.media.service.upload;
 
 import com.hls.streaming.infrastructure.config.properties.StorageConfig;
+import com.hls.streaming.infrastructure.metrics.MetricsConstants;
+import com.hls.streaming.infrastructure.storage.S3Client;
 import com.hls.streaming.media.domain.document.Video;
-import com.hls.streaming.media.event.OnUploadVideoEvent;
-import com.hls.streaming.media.dto.VideoUploadResponse;
 import com.hls.streaming.media.domain.enums.VideoStatus;
 import com.hls.streaming.media.domain.repository.VideoRepository;
-import com.hls.streaming.infrastructure.storage.S3Client;
+import com.hls.streaming.media.dto.VideoUploadResponse;
+import com.hls.streaming.media.event.OnUploadVideoEvent;
 import com.hls.streaming.media.utils.MediaUtils;
+import io.micrometer.core.instrument.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +27,35 @@ public class VideoUploadService {
     private final S3Client s3Client;
     private final StorageConfig storageConfig;
     private final ApplicationEventPublisher publisher;
+    private final MeterRegistry registry;
+
+    private final Counter uploadSuccessCounter;
+    private final Counter uploadFailureCounter;
+    private final Timer uploadTimer;
+
+    public VideoUploadService(
+            final VideoRepository videoRepository,
+            final S3Client s3Client,
+            final StorageConfig storageConfig,
+            final ApplicationEventPublisher publisher,
+            final MeterRegistry registry) {
+
+        this.videoRepository = videoRepository;
+        this.s3Client = s3Client;
+        this.storageConfig = storageConfig;
+        this.publisher = publisher;
+        this.registry = registry;
+
+        this.uploadSuccessCounter = Counter.builder(MetricsConstants.Upload.SUCCESS)
+                .register(registry);
+
+        this.uploadFailureCounter = Counter.builder(MetricsConstants.Upload.FAILURE)
+                .register(registry);
+
+        this.uploadTimer = Timer.builder(MetricsConstants.Upload.LATENCY)
+                .publishPercentileHistogram()
+                .register(registry);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public VideoUploadResponse uploadRawVideo(
@@ -38,11 +69,13 @@ public class VideoUploadService {
             throw new IllegalArgumentException("Invalid file");
         }
 
-        var folder = storageConfig.getRawVideoPrefix() + userId;
-        var key = MediaUtils.generateKey(storageConfig.getRawVideoPrefix(), userId, fileName);
-        var contentType = StringUtils.defaultIfBlank(file.getContentType(), "video/mp4");
+        final Timer.Sample sample = Timer.start(registry);
 
-        var video = Video.builder()
+        final String folder = storageConfig.getRawVideoPrefix() + userId;
+        final String key = MediaUtils.generateKey(storageConfig.getRawVideoPrefix(), userId, fileName);
+        final String contentType = StringUtils.defaultIfBlank(file.getContentType(), "video/mp4");
+
+        final Video video = Video.builder()
                 .userId(userId)
                 .title(StringUtils.defaultString(title))
                 .description(StringUtils.defaultString(description))
@@ -56,13 +89,19 @@ public class VideoUploadService {
 
         try {
             s3Client.uploadFile(folder, fileName, file.getInputStream(), contentType, file.getSize());
+
+            uploadSuccessCounter.increment();
+
         } catch (Exception e) {
+            uploadFailureCounter.increment();
             video.setStatus(VideoStatus.FAILED);
             videoRepository.save(video);
             throw new RuntimeException("Upload failed", e);
+        } finally {
+            sample.stop(uploadTimer);
         }
 
-        var saved = videoRepository.save(video);
+        final Video saved = videoRepository.save(video);
 
         publisher.publishEvent(OnUploadVideoEvent.builder()
                 .videoId(saved.getId())
